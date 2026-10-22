@@ -1,0 +1,29 @@
+name: piedemonte-forest
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - geopandas
+  - shapely
+  - pyarrow
+  - rasterio
+  - rasterstats
+  - scipy
+  - h3-py
+  - libpysal
+  - esda
+  - spreg
+  - statsmodels
+  - scikit-learn
+  - matplotlib
+  - earthengine-api
+  - sqlalchemy
+  - geoalchemy2
+  - psycopg2
+  - requests
+  - pip
+  - pip:
+      - python-dotenv
+      - google-cloud-storage
