@@ -1,9 +1,11 @@
 """
 Download raw inputs into data.nosync/raw/. Skips files that already exist.
+--optional also fetches inputs used only by the quick-look maps.
 
 RUNAP's "latest.zip" is not versioned: the copy used here was accessed 2026-06-28.
 """
 import hashlib
+import sys
 from pathlib import Path
 
 import requests
@@ -21,6 +23,13 @@ SOURCES = {
     "prem2020/RepliDataset.zip":
         "https://www.dropbox.com/s/555dnlnapw6j4o0/RepliDataset.zip?dl=1",
 }
+
+OPTIONAL = {
+    "hydrorivers/HydroRIVERS_v10_sa_shp.zip":
+        "https://data.hydrosheds.org/file/HydroRIVERS/HydroRIVERS_v10_sa_shp.zip",
+}
+if "--optional" in sys.argv:
+    SOURCES |= OPTIONAL
 
 
 def sha1(path):
