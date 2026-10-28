@@ -55,7 +55,7 @@ Rivers come from IGAC's 1:100,000 drainage rather than HydroRIVERS, whose channe
 
 The following is a rough sketch of the three parts of the analysis. Years up to 2014 are pre-ceasefire, and 2015 is the first post-ceasefire year.
 
-1. **Loss patches.** Annual MapBiomas land cover gives the forest pixels lost each year and whether they were primary forest or secondary regrowth. Loss pixels are grouped into patches, and each patch is measured against roads, rivers, protected areas and earlier clearings. Patterns before and after the ceasefire are compared between municipios with and without pre-ceasefire armed-group presence. Hansen loss serves as a cross-check.
+1. **Loss patches.** Annual MapBiomas land cover gives the forest pixels lost each year and whether they were primary forest or secondary regrowth. A pixel counts as lost in year t if it was forest in the two previous years and an agricultural or other human-made class in t and t+1, which filters out single-year classification errors (2008–2023). Loss pixels are grouped into patches, and each patch is measured against roads, rivers, protected areas and earlier clearings. Patterns before and after the ceasefire are compared between municipios with and without pre-ceasefire armed-group presence. Hansen loss serves as a cross-check.
 2. **Spatial model.** Loss rates are summarised on a hexagon grid (H3). Clustering is measured with Moran's I and local indicators of spatial association (LISA), and loss rates are modelled with OLS and spatial lag and error models.
 3. **Emissions.** Loss area is multiplied by emission factors derived from ESA CCI above-ground biomass, giving gross CO₂ by year, forest type and armed-group presence.
 
@@ -66,6 +66,7 @@ The following is a rough sketch of the three parts of the analysis. Years up to 
 ## Limitations
 
 - Results are associations. Unlike Prem et al. (2020), this project has no identification strategy, so differences between municipios with and without pre-ceasefire armed-group presence may reflect other factors, such as remoteness or land use, that already differed between the two groups.
+- "Primary" forest means no recorded clearing since 1985, when the MapBiomas record starts. Forest regrown from earlier clearings can't be told apart from primary forest, so primary loss is overstated, more so in earlier years, which have a shorter record ([D12](docs/decisions/design.md)).
 
 *More to be added.*
 

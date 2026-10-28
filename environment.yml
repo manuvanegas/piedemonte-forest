@@ -18,6 +18,7 @@ dependencies:
   - statsmodels
   - scikit-learn
   - matplotlib
+  - openpyxl
   - earthengine-api
   - sqlalchemy
   - geoalchemy2
