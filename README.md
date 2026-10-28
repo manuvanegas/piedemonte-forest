@@ -6,7 +6,7 @@ Where forest was cleared in Colombia's Andean–Amazon piedmont after the 2014�
 
 ## Context
 
-Caquetá, Guaviare, Meta and Putumayo, the departments where the Andes meet the Amazon lowlands, form the core of Colombia's Amazon deforestation frontier. Prem et al. (2020) showed that after the ceasefire, deforestation rose more in municipios with pre-ceasefire armed-group presence than in other municipios. The increase was smaller where state presence and judicial capacity were higher, and larger where land-intensive economic activities were common.
+Caquetá, Guaviare, Meta and Putumayo, the departments where the Andes meet the Amazon lowlands, form the core of Colombia's Amazon deforestation frontier, often called the deforestation arc (*arco de deforestación*). Prem et al. (2020) showed that after the ceasefire, deforestation rose more in municipios with pre-ceasefire armed-group presence than in other municipios. The increase was smaller where state presence and judicial capacity were higher, and larger where land-intensive economic activities were common.
 
 Their study measured how much forest was lost. This project looks at where the post-ceasefire loss happened relative to roads, rivers, protected areas and earlier clearings, and whether it cleared primary or secondary forest.
 
@@ -23,6 +23,14 @@ The results are associations, not causal estimates.
 
 The four departments (Caquetá, Guaviare, Meta and Putumayo) cover about 257,000 km² and contain 62 municipios, the municipalities that make up the administrative level below the department. The area spans the Andean foothills, Amazon lowland forest and, in northern and eastern Meta, the savannas of the Llanos.
 
+The departments are taken whole, so the boundary follows administrative lines rather than the piedmont itself; savanna is excluded later through a minimum forest share. Municipios on the far side of department borders, such as the piedmont of the Bota Caucana in Cauca, fall outside the study area.
+
+### Pre-ceasefire armed-group presence
+
+Prem et al. (2020) code a municipio as having armed-group presence if at least one violent event was attributed to the group in 2011–2014 (`FARC1`). This project adds untreated municipios that share at least 80% of their border with such municipios and had at least one selective killing attributed to the group in the same years, as recorded by the Centro Nacional de Memoria Histórica (`FARC2`). A municipio almost enclosed by violent presence, with killings recorded by a second source, is unlikely to be outside the group's reach. This adds four municipios, giving 30 of 62 with presence. Both measures record violence, not territorial control.
+
+![Pre-ceasefire armed-group presence by municipio](figures/inputs/treatment.png)
+
 ## Data
 
 | Dataset | Used for | Version / access |
@@ -30,11 +38,18 @@ The four departments (Caquetá, Guaviare, Meta and Putumayo) cover about 257,000
 | MapBiomas Colombia | Annual land cover; forest loss and forest history | Collection 3 (1985–2024) |
 | Global Forest Change (Hansen et al., 2013) | Comparison with MapBiomas loss | v1.13 |
 | ESA CCI Biomass | Above-ground biomass for emission factors | v7.0 |
-| GRIP4 (Meijer et al., 2018) | Roads | Region 2 |
-| HydroRIVERS (Lehner and Grill, 2013) | Rivers | |
+| GRIP4 (Meijer et al., 2018) | Roads (pre-ceasefire network) | Region 2; in the study area, IGAC mapping dated 2012 |
+| IGAC drainage | Rivers | 1:100,000, via IDEAM's map service, accessed 2026-10-23 |
+| HydroRIVERS (Lehner and Grill, 2013) | Comparison with IGAC rivers (quick-look maps only) | v1.0 |
 | RUNAP | Protected areas | accessed 2026-06-28 |
 | HDX COD-AB (DANE) | Municipio boundaries | 2020 |
-| Prem et al. (2020) replication data | Pre-ceasefire armed-group presence by municipio | |
+| Prem et al. (2020) replication data | Pre-ceasefire armed-group presence (`FARC1`, `FARC2`) | authors' replication files (dated 2020-03-04), accessed 2026-06-28 |
+
+### A first look at the data
+
+![Roads, protected areas and rivers in the study area](figures/inputs/sources.png)
+
+Rivers come from IGAC's 1:100,000 drainage rather than HydroRIVERS, whose channels are modelled from elevation data; [El Doncello](figures/inputs/rivers_el_doncello.png), a municipio spanning foothills and lowland, shows the difference.
 
 ## Methods
 
@@ -62,6 +77,8 @@ conda activate piedemonte-forest
 cp .env.example .env              # fill in your own values
 make db                           # PostGIS (docker compose)
 make raw                          # download raw inputs
+make study                        # study area and treatment table
+make input-quicklook              # optional: quick-look maps of the inputs (downloads HydroRIVERS, ~95 MB)
 ```
 
 The `Makefile` holds the run order: each target is an output file, rebuilt only when missing or older than its inputs. Scripts live in `scripts/<stage>/` and run from the repository root.
