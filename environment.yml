@@ -2,7 +2,7 @@ name: piedemonte-forest
 channels:
   - conda-forge
 dependencies:
-  - python=3.11
+  - python=3.13
   - numpy
   - pandas
   - geopandas
