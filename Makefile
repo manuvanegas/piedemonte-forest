@@ -18,13 +18,14 @@ IGAC_FILES := \
 # quick-look maps only
 HYRIV := $(RAW)/hydrorivers/HydroRIVERS_v10_sa_shp.zip
 
-.PHONY: all raw study input-quicklook db help
+.PHONY: all raw study loss input-quicklook db help
 
 all: raw study
 
 help:
 	@echo "make raw   download missing raw inputs"
 	@echo "make study study area and treatment table"
+	@echo "make loss  annual loss rasters (Earth Engine) and loss patches"
 	@echo "make input-quicklook quick-look maps of the inputs (adds HydroRIVERS, ~95 MB)"
 	@echo "make db    start PostGIS (docker compose)"
 
@@ -56,6 +57,22 @@ $(PROCESSED)/treatment.parquet: scripts/setup/join_treatment.py scripts/setup/pr
 
 # written by the same run as treatment.parquet
 $(PROCESSED)/treatment_all.parquet: $(PROCESSED)/treatment.parquet ;
+
+# --- loss ---
+YEARS := $(shell seq 2008 2023)
+LOSS_TIFS := $(YEARS:%=$(PROCESSED)/loss/loss_%.tif)
+PATCHES := $(YEARS:%=$(PROCESSED)/loss_patches/patches_%.parquet)
+
+loss: $(PATCHES)
+
+# Earth Engine, ~5 min and ~1.8 EECU-h a year. No prerequisites: fetched only when missing, never
+# rebuilt because a script changed (delete the file to refetch)
+$(LOSS_TIFS):
+	$(PY) scripts/loss/download_loss.py $(patsubst $(PROCESSED)/loss/loss_%.tif,%,$@)
+
+$(PROCESSED)/loss_patches/patches_%.parquet: $(PROCESSED)/loss/loss_%.tif scripts/loss/vectorize_loss.py \
+		scripts/loss/patch_tools.py $(STUDY_FILES) $(PROCESSED)/treatment.parquet
+	$(PY) scripts/loss/vectorize_loss.py $*
 
 # --- quick-look maps of the inputs ---
 input-quicklook: figures/inputs/sources.png figures/inputs/rivers_el_doncello.png figures/inputs/treatment.png
