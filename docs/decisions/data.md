@@ -1,6 +1,6 @@
 # Decisions: data
 
-Next ID: A7.
+Next ID: A8.
 
 - **A1** [SUPERSEDED → A5] **Roads: GRIP4 Region 2 rather than raw OSM.** For Colombia, GRIP4 blends OSM highways with IGAC photogrammetric mapping for lower road classes (Meijer et al. 2018). Informal roads remain undercounted, a limitation for any road dataset in this region.
 - **A2** **CRS: EPSG:9377 (MAGNA-SIRGAS 2018 / Origen-Nacional) for all distances and areas.** Sources in EPSG:4326 are reprojected, or their pixel areas computed, before any metric calculation.
@@ -8,3 +8,4 @@ Next ID: A7.
 - **A4** **Rivers: IGAC 1:100.000 drainage (single- and double-line), queried from IDEAM's republication of the IGAC layers.** Digitised from imagery, covers rivers of all widths and carries names; IGAC's own server was unavailable (2026-10-23). The copy has no capture dates and no perennial/intermittent attribute. HydroRIVERS v1.0, modelled from SRTM elevation, is kept as a comparison.
 - **A5** **Roads: GRIP4 as the pre-ceasefire road network.** Within the study area GRIP4 is 99.9% IGAC mapping dated 2012 (its source and year attributes), with no ferry or river-route class. Distance to road therefore means distance to the network as it stood before the ceasefire (D3). Roads opened later are not observed; clearing that follows them is captured by distance to earlier clearing, updated every year. Informal roads are undercounted.
 - **A6** **Protected areas: current RUNAP boundaries for every year.** The RUNAP download holds only current boundaries, and its `fecha_insc` is the registry date (2011 or later for every area), not the designation date. The largest change in the study area is Chiribiquete: 1.30 Mha at creation (1989), enlarged to 2.78 Mha in 2013 (Resolución 1038) and 4.27 Mha in 2018 (Resolución 1256). Before 2018, distance to a protected area and the inside flag count parts of its extension as protected ahead of their designation.
+- **A7** **Nearest-neighbour distances run against targets split into pieces of at most 256 vertices (`ST_Subdivide`).** The spatial index ranks candidates by bounding box, then measures the exact distance to each; large RUNAP polygons (up to 130,667 vertices; Chiribiquete's box covers 86,896 km²) make every candidate costly. On 10,000 sampled 2015 patches: 27.4 ms per patch on RUNAP as loaded (about 17 h for all years) vs 0.15 ms on the split copy, with the same nearest area and distance for every patch (`results/initial-checks/nearest_timing.csv`). The full run on the split copy, all 2,220,361 patches, took 5 min 20 s.

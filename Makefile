@@ -18,7 +18,7 @@ IGAC_FILES := \
 # quick-look maps only
 HYRIV := $(RAW)/hydrorivers/HydroRIVERS_v10_sa_shp.zip
 
-.PHONY: all raw study loss input-quicklook db help
+.PHONY: all raw study loss covariates input-quicklook db help
 
 all: raw study
 
@@ -26,6 +26,7 @@ help:
 	@echo "make raw   download missing raw inputs"
 	@echo "make study study area and treatment table"
 	@echo "make loss  annual loss rasters (Earth Engine) and loss patches"
+	@echo "make covariates patch distances (needs make db)"
 	@echo "make input-quicklook quick-look maps of the inputs (adds HydroRIVERS, ~95 MB)"
 	@echo "make db    start PostGIS (docker compose)"
 
@@ -73,6 +74,23 @@ $(LOSS_TIFS):
 $(PROCESSED)/loss_patches/patches_%.parquet: $(PROCESSED)/loss/loss_%.tif scripts/loss/vectorize_loss.py \
 		scripts/loss/patch_tools.py $(STUDY_FILES) $(PROCESSED)/treatment.parquet
 	$(PY) scripts/loss/vectorize_loss.py $*
+
+# --- patch covariates (PostGIS; start it with make db) ---
+covariates: $(PROCESSED)/covariates/protected_areas.parquet
+
+# Empty stamp file: all patches are in PostGIS (~3 min). Make can't see inside the database, so
+# delete the stamp if the database volume is reset
+DB_PATCHES := $(PROCESSED)/db/patches.loaded
+
+$(DB_PATCHES): $(PATCHES) scripts/loss/load_patches.py
+	$(PY) scripts/loss/load_patches.py
+	@mkdir -p $(@D) && touch $@
+
+# ~5 min
+$(PROCESSED)/covariates/protected_areas.parquet: $(DB_PATCHES) $(RAW)/runap/runap_latest.zip \
+		scripts/loss/load_targets.py scripts/loss/distance_protected_areas.py scripts/loss/patch_distances.py
+	$(PY) scripts/loss/load_targets.py --runap
+	$(PY) scripts/loss/distance_protected_areas.py
 
 # --- quick-look maps of the inputs ---
 input-quicklook: figures/inputs/sources.png figures/inputs/rivers_el_doncello.png figures/inputs/treatment.png

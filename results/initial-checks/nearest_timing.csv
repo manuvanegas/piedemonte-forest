@@ -1,0 +1,9 @@
+# script: check_nearest_timing.py
+# run: 2026-11-01
+# seed: 0.42
+# postgis: 3.4.3
+# db_arch: x86_64-pc-linux-gnu
+# host: arm64
+target,sample,seconds,ms_per_patch,est_h_2015,est_h_all_years,target_rows,target_nv_p99,target_nv_max,median_dist_m,share_inside,same_target_as_runap,max_dist_diff_m
+runap,10000,274.1,27.41,0.97,16.9,1882,51288,130667,15745,0.056,1.0,0.0
+runap_sub,10000,1.5,0.15,0.01,0.1,35570,253,256,15745,0.056,1.0,0.0
