@@ -67,6 +67,7 @@ The following is a rough sketch of the three parts of the analysis. Years up to 
 
 - Results are associations. Unlike Prem et al. (2020), this project has no identification strategy, so differences between municipios with and without pre-ceasefire armed-group presence may reflect other factors, such as remoteness or land use, that already differed between the two groups.
 - "Primary" forest means no recorded clearing since 1985, when the MapBiomas record starts. Forest regrown from earlier clearings can't be told apart from primary forest, so primary loss is overstated, more so in earlier years, which have a shorter record ([D12](docs/decisions/design.md)).
+- Protected areas are taken at their current boundaries for every year, because the RUNAP layer used here (the national registry of protected areas) holds only current boundaries. Chiribiquete, the largest in the study area, was enlarged in 2013 and again in 2018, from 1.30 to 4.27 Mha. Before 2018, distances to protected areas and the inside/outside flag treat parts of it as protected before they were ([A6](docs/decisions/data.md)).
 
 *More to be added.*
 
