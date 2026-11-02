@@ -39,7 +39,7 @@ Prem et al. (2020) code a municipio as having armed-group presence if at least o
 | Global Forest Change (Hansen et al., 2013) | Comparison with MapBiomas loss | v1.13 |
 | ESA CCI Biomass | Above-ground biomass for emission factors | v7.0 |
 | GRIP4 (Meijer et al., 2018) | Roads (pre-ceasefire network) | Region 2; in the study area, IGAC mapping dated 2012 |
-| IGAC drainage | Rivers | 1:100,000, via IDEAM's map service, accessed 2026-10-23 |
+| IGAC drainage | Rivers | 1:100,000, via IDEAM's map service, accessed 2026-10-23 (study departments) and 2026-11-02 (200 km buffer ring) |
 | HydroRIVERS (Lehner and Grill, 2013) | Comparison with IGAC rivers (quick-look maps only) | v1.0 |
 | RUNAP | Protected areas | accessed 2026-06-28 |
 | HDX COD-AB (DANE) | Municipio boundaries | 2020 |

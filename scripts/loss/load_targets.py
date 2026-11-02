@@ -5,15 +5,19 @@ Each layer is cut to TARGET_BUFFER around the study area (A8): a feature farther
 nearest one for a patch closer than that to some feature.
 --runap  protected areas (A6); runap_sub splits each area into pieces of at most 256 vertices (A7)
 --roads  GRIP4 roads (A5); roads_sub as for runap
+--rivers IGAC single-line streams and double-line river surfaces in one table, kind 'single' or
+         'double'; rivers_sub as for runap
 
-In:  data.nosync/raw/runap/runap_latest.zip, data.nosync/raw/grip4/GRIP4_Region2_vector_shp.zip
-Out: tables runap, runap_sub, roads, roads_sub
+In:  data.nosync/raw/runap/runap_latest.zip, data.nosync/raw/grip4/GRIP4_Region2_vector_shp.zip,
+     data.nosync/raw/igac_drenaje/drenaje_{sencillo,doble}.parquet
+Out: tables runap, runap_sub, roads, roads_sub, rivers, rivers_sub
 
-Usage: python scripts/loss/load_targets.py [--runap] [--roads]
+Usage: python scripts/loss/load_targets.py [--runap] [--roads] [--rivers]
 """
 import argparse
 
 import geopandas as gpd
+import pandas as pd
 from sqlalchemy import text
 
 import db
@@ -25,6 +29,7 @@ MAX_VERTICES = 256
 parser = argparse.ArgumentParser(description="Load target layers into PostGIS.")
 parser.add_argument("--runap", action="store_true", help="protected areas (RUNAP)")
 parser.add_argument("--roads", action="store_true", help="roads (GRIP4)")
+parser.add_argument("--rivers", action="store_true", help="rivers, single- and double-line (IGAC)")
 args = parser.parse_args()
 if not any(vars(args).values()):
     parser.error("say which layers to load, e.g. --runap")
@@ -61,3 +66,17 @@ if args.roads:
     g = g.rename(columns={"GP_RTP": "road_type"}).rename_axis("road_id").reset_index()
     g.to_postgis("roads", engine, if_exists="replace", index=False)
     print(f"roads: {len(g):,} lines within {TARGET_BUFFER / 1e3:.0f} km ({subdivide('roads', 'road_id'):,} pieces)")
+
+if args.rivers:
+    parts = []
+    for kind, f in [("single", "drenaje_sencillo"), ("double", "drenaje_doble")]:
+        g = gpd.read_parquet(f"data.nosync/raw/igac_drenaje/{f}.parquet", columns=["nombre_geografico", "geometry"])
+        g = g.to_crs(CRS)
+        g = g.iloc[g.sindex.query(area.iloc[0], predicate="intersects")]
+        parts.append(g.rename(columns={"nombre_geografico": "river_name"}).assign(kind=kind))
+    g = pd.concat(parts, ignore_index=True).rename_axis("river_id").reset_index()
+    g = gpd.GeoDataFrame(g[["river_id", "kind", "river_name", "geometry"]], crs=CRS)
+    g.to_postgis("rivers", engine, if_exists="replace", index=False)
+    n = g.kind.value_counts()
+    print(f"rivers: {n.get('single', 0):,} single-line and {n.get('double', 0):,} double-line features within "
+          f"{TARGET_BUFFER / 1e3:.0f} km ({subdivide('rivers', 'river_id'):,} pieces)")

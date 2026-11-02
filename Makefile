@@ -76,7 +76,8 @@ $(PROCESSED)/loss_patches/patches_%.parquet: $(PROCESSED)/loss/loss_%.tif script
 	$(PY) scripts/loss/vectorize_loss.py $*
 
 # --- patch covariates (PostGIS; start it with make db) ---
-covariates: $(PROCESSED)/covariates/protected_areas.parquet $(PROCESSED)/covariates/roads.parquet
+covariates: $(PROCESSED)/covariates/protected_areas.parquet $(PROCESSED)/covariates/roads.parquet \
+		$(PROCESSED)/covariates/rivers.parquet
 
 # Empty stamp file: all patches are in PostGIS (~3 min). Make can't see inside the database, so
 # delete the stamp if the database volume is reset
@@ -111,3 +112,9 @@ figures/inputs/rivers_el_doncello.png figures/inputs/treatment.png: figures/inpu
 
 db:
 	docker compose up -d
+
+$(PROCESSED)/covariates/rivers.parquet: $(DB_PATCHES) $(IGAC_FILES) \
+		$(PROCESSED)/study_area.parquet scripts/loss/load_targets.py scripts/loss/distance_rivers.py \
+		scripts/loss/patch_distances.py
+	$(PY) scripts/loss/load_targets.py --rivers
+	$(PY) scripts/loss/distance_rivers.py
