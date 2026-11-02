@@ -76,7 +76,7 @@ $(PROCESSED)/loss_patches/patches_%.parquet: $(PROCESSED)/loss/loss_%.tif script
 	$(PY) scripts/loss/vectorize_loss.py $*
 
 # --- patch covariates (PostGIS; start it with make db) ---
-covariates: $(PROCESSED)/covariates/protected_areas.parquet
+covariates: $(PROCESSED)/covariates/protected_areas.parquet $(PROCESSED)/covariates/roads.parquet
 
 # Empty stamp file: all patches are in PostGIS (~3 min). Make can't see inside the database, so
 # delete the stamp if the database volume is reset
@@ -88,9 +88,16 @@ $(DB_PATCHES): $(PATCHES) scripts/loss/load_patches.py
 
 # ~5 min
 $(PROCESSED)/covariates/protected_areas.parquet: $(DB_PATCHES) $(RAW)/runap/runap_latest.zip \
-		scripts/loss/load_targets.py scripts/loss/distance_protected_areas.py scripts/loss/patch_distances.py
+		$(PROCESSED)/study_area.parquet scripts/loss/load_targets.py scripts/loss/distance_protected_areas.py scripts/loss/patch_distances.py
 	$(PY) scripts/loss/load_targets.py --runap
 	$(PY) scripts/loss/distance_protected_areas.py
+
+# ~7 min
+$(PROCESSED)/covariates/roads.parquet: $(DB_PATCHES) $(RAW)/grip4/GRIP4_Region2_vector_shp.zip \
+		$(PROCESSED)/study_area.parquet scripts/loss/load_targets.py scripts/loss/distance_roads.py \
+		scripts/loss/patch_distances.py
+	$(PY) scripts/loss/load_targets.py --roads
+	$(PY) scripts/loss/distance_roads.py
 
 # --- quick-look maps of the inputs ---
 input-quicklook: figures/inputs/sources.png figures/inputs/rivers_el_doncello.png figures/inputs/treatment.png

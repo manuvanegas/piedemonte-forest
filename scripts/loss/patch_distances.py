@@ -1,6 +1,8 @@
 """
 Nearest-neighbour distance from each loss patch to a target layer in PostGIS.
 """
+# targets are loaded within this distance of the study area; the distance scripts check no patch is farther
+TARGET_BUFFER = 200_000  # m
 
 
 def nearest_sql(patches: str, target: str, target_id: str) -> str:

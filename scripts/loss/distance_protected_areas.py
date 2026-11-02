@@ -14,7 +14,7 @@ import pandas as pd
 from sqlalchemy import text
 
 import db
-from patch_distances import nearest_sql
+from patch_distances import TARGET_BUFFER, nearest_sql
 
 OUT = Path("data.nosync/processed/covariates/protected_areas.parquet")
 
@@ -26,6 +26,8 @@ with engine.connect() as con:
     n_patches = con.execute(text("SELECT count(*) FROM patches")).scalar()
 assert len(d) == n_patches, f"{len(d):,} rows for {n_patches:,} patches"
 assert not d.duplicated(["loss_year", "patch_id"]).any()
+# beyond the buffer, an area that wasn't loaded could be nearer
+assert d.dist_m.max() < TARGET_BUFFER, f"max distance {d.dist_m.max():,.0f} m >= buffer {TARGET_BUFFER:,} m"
 
 d = d.rename(columns={"target_id": "pa_id", "dist_m": "pa_dist_m"})
 d["in_pa"] = d.pa_dist_m == 0
