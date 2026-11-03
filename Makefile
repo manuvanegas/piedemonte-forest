@@ -113,7 +113,7 @@ figures/inputs/rivers_el_doncello.png figures/inputs/treatment.png: figures/inpu
 db:
 	docker compose up -d
 
-$(PROCESSED)/covariates/rivers.parquet: $(DB_PATCHES) $(IGAC_FILES) \
+$(PROCESSED)/covariates/rivers.parquet: $(DB_PATCHES) $(RAW)/igac_drenaje/drenaje_doble.parquet \
 		$(PROCESSED)/study_area.parquet scripts/loss/load_targets.py scripts/loss/distance_rivers.py \
 		scripts/loss/patch_distances.py
 	$(PY) scripts/loss/load_targets.py --rivers
