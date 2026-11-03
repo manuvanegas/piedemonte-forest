@@ -11,9 +11,10 @@ Distances are computed with geopandas against the same 200 km target sets as the
 
 Needs HydroRIVERS (make input-quicklook). Points are saved to
 data.nosync/processed/exploration/background_points.parquet, the table to
-results/exploration/covariate_spread.csv; both are reused, --rerun recomputes them.
+results/exploration/covariate_spread.csv; both are reused. --rerun recomputes the table from the
+saved points, --redraw also draws new points (Earth Engine).
 
-Usage: python scripts/loss/explore_covariate_spread.py [--rerun]
+Usage: python scripts/loss/explore_covariate_spread.py [--rerun | --redraw]
 """
 import os
 import sys
@@ -24,6 +25,7 @@ import geopandas as gpd
 import h3
 import numpy as np
 import pandas as pd
+import shapely
 from dotenv import load_dotenv
 
 import loss_rule as lr
@@ -73,10 +75,13 @@ def targets(ring):
     runap = gpd.read_file(f"zip://{RAW}/runap/runap_latest.zip!runap.shp").to_crs(CRS)
     single = gpd.read_parquet(RAW / "igac_drenaje/drenaje_sencillo.parquet", columns=["geometry"]).to_crs(CRS)
     double = gpd.read_parquet(RAW / "igac_drenaje/drenaje_doble.parquet", columns=["geometry"]).to_crs(CRS)
+    res = gpd.read_parquet(RAW / "ant_resguardos/resguardos.parquet", columns=["geometry"])
+    res["geometry"] = shapely.make_valid(res.geometry.values, method="structure", keep_collapsed=False)
     hyriv = read(f"zip://{HYRIV}!HydroRIVERS_v10_sa_shp/HydroRIVERS_v10_sa.shp", columns=["DIS_AV_CMS"])
     layers = {
         "road (GRIP4)": roads,
         "protected area (RUNAP)": runap,
+        "Indigenous resguardo (ANT)": res.to_crs(CRS),
         "river: IGAC single- and double-line": pd.concat([single, double]),
         "river: IGAC double-line": double,
         **{f"river: HydroRIVERS >= {q} m3/s": hyriv[hyriv.DIS_AV_CMS >= q] for q in (1, 5, 20)},
@@ -90,11 +95,12 @@ def nearest(points, target):
     return j[~j.index.duplicated()].d.reindex(points.index)
 
 
-if "--rerun" in sys.argv or not OUT.exists():
+redraw = "--redraw" in sys.argv
+if redraw or "--rerun" in sys.argv or not OUT.exists():
     area = gpd.read_parquet("data.nosync/processed/study_area.parquet").to_crs(CRS).union_all()
     ring = area.buffer(TARGET_BUFFER)
 
-    if "--rerun" in sys.argv or not POINTS.exists():
+    if redraw or not POINTS.exists():
         bg, eecu = background_points(area, N_POINTS)
         POINTS.parent.mkdir(parents=True, exist_ok=True)
         bg.assign(draw_eecu_s=round(eecu, 1)).to_parquet(POINTS)  # cost kept with the points

@@ -8,7 +8,7 @@ Where forest was cleared in Colombia's Andean–Amazon piedmont after the 2014�
 
 Caquetá, Guaviare, Meta and Putumayo, the departments where the Andes meet the Amazon lowlands, form the core of Colombia's Amazon deforestation frontier, often called the deforestation arc (*arco de deforestación*). Prem et al. (2020) showed that after the ceasefire, deforestation rose more in municipios with pre-ceasefire armed-group presence than in other municipios. The increase was smaller where state presence and judicial capacity were higher, and larger where land-intensive economic activities were common.
 
-Their study measured how much forest was lost. This project looks at where the post-ceasefire loss happened relative to roads, rivers, protected areas and earlier clearings, and whether it cleared primary or secondary forest.
+Their study measured how much forest was lost. This project looks at where the post-ceasefire loss happened relative to roads, rivers, protected areas, Indigenous resguardos and earlier clearings, and whether it cleared primary or secondary forest.
 
 ## Questions
 
@@ -42,12 +42,13 @@ Prem et al. (2020) code a municipio as having armed-group presence if at least o
 | IGAC drainage | Rivers (double-line; single-line streams on the maps only) | 1:100,000, via IDEAM's map service, accessed 2026-10-23 (study departments) and 2026-11-02 (200 km buffer ring) |
 | HydroRIVERS (Lehner and Grill, 2013) | Comparison with IGAC rivers (quick-look maps and covariate exploration) | v1.0 |
 | RUNAP | Protected areas | accessed 2026-06-28 |
+| ANT resguardos (Agencia Nacional de Tierras, 2026) | Indigenous resguardos | data updated 2026-06-25, accessed 2026-11-02 |
 | HDX COD-AB (DANE) | Municipio boundaries | 2020 |
 | Prem et al. (2020) replication data | Pre-ceasefire armed-group presence (`FARC1`, `FARC2`) | authors' replication files (dated 2020-03-04), accessed 2026-06-28 |
 
 ### A first look at the data
 
-![Roads, protected areas and rivers in the study area](figures/inputs/sources.png)
+![Roads, protected areas, Indigenous resguardos and rivers in the study area](figures/inputs/sources.png)
 
 Rivers come from IGAC's 1:100,000 drainage rather than HydroRIVERS, whose channels are modelled from elevation data; [El Doncello](figures/inputs/rivers_el_doncello.png), a municipio spanning foothills and lowland, shows the difference.
 
@@ -55,7 +56,7 @@ Rivers come from IGAC's 1:100,000 drainage rather than HydroRIVERS, whose channe
 
 The following is a rough sketch of the three parts of the analysis. Years up to 2014 are pre-ceasefire, and 2015 is the first post-ceasefire year.
 
-1. **Loss patches.** Annual MapBiomas land cover gives the forest pixels lost each year and whether they were primary forest or secondary regrowth. A pixel counts as lost in year t if it was forest in the two previous years and an agricultural or other human-made class in t and t+1, which filters out single-year classification errors (2008–2023). Loss pixels are grouped into patches of pixels that share an edge; single-pixel patches are left out of the analysis. Each patch is measured against roads, rivers, protected areas and earlier clearings. Patterns before and after the ceasefire are compared between municipios with and without pre-ceasefire armed-group presence. Hansen loss serves as a cross-check.
+1. **Loss patches.** Annual MapBiomas land cover gives the forest pixels lost each year and whether they were primary forest or secondary regrowth. A pixel counts as lost in year t if it was forest in the two previous years and an agricultural or other human-made class in t and t+1, which filters out single-year classification errors (2008–2023). Loss pixels are grouped into patches of pixels that share an edge; single-pixel patches are left out of the analysis. Each patch is measured against roads, rivers, protected areas, Indigenous resguardos and earlier clearings. Patterns before and after the ceasefire are compared between municipios with and without pre-ceasefire armed-group presence. Hansen loss serves as a cross-check.
 2. **Spatial model.** Loss rates are summarised on a hexagon grid (H3). Clustering is measured with Moran's I and local indicators of spatial association (LISA), and loss rates are modelled with OLS and spatial lag and error models.
 3. **Emissions.** Loss area is multiplied by emission factors derived from ESA CCI above-ground biomass, giving gross CO₂ by year, forest type and armed-group presence.
 
@@ -86,6 +87,8 @@ make input-quicklook              # optional: quick-look maps of the inputs (dow
 The `Makefile` holds the run order: each target is an output file, rebuilt only when missing or older than its inputs. Scripts live in `scripts/<stage>/` and run from the repository root.
 
 ## References
+
+[dataset] Agencia Nacional de Tierras, 2026. Resguardo Indígena Formalizado. Dirección de Asuntos Étnicos, data updated 25 June 2026. © Agencia Nacional de Tierras - Dirección de Asuntos Étnicos 2022, licensed under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/); clipped to the study area and self-touching polygons repaired. https://utility.arcgis.com/usrsvcs/servers/8944116ccfd34a7189c4bc44b8e19186/rest/services/DatosAbiertos/Resguardo_Indigena_Formalizado/FeatureServer/0 (accessed 2 November 2026).
 
 Hansen, M.C., Potapov, P.V., Moore, R., Hancher, M., Turubanova, S.A., Tyukavina, A., Thau, D., Stehman, S.V., Goetz, S.J., Loveland, T.R., Kommareddy, A., Egorov, A., Chini, L., Justice, C.O., Townshend, J.R.G., 2013. High-resolution global maps of 21st-century forest cover change. Science 342, 850–853. https://doi.org/10.1126/science.1244693
 

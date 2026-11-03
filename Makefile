@@ -15,6 +15,8 @@ IGAC_FILES := \
 	$(RAW)/igac_drenaje/drenaje_sencillo.parquet \
 	$(RAW)/igac_drenaje/drenaje_doble.parquet
 
+RESGUARDOS := $(RAW)/ant_resguardos/resguardos.parquet
+
 # quick-look maps only
 HYRIV := $(RAW)/hydrorivers/HydroRIVERS_v10_sa_shp.zip
 
@@ -31,7 +33,7 @@ help:
 	@echo "make db    start PostGIS (docker compose)"
 
 # --- setup ---
-raw: $(RAW_FILES) $(IGAC_FILES)
+raw: $(RAW_FILES) $(IGAC_FILES) $(RESGUARDOS)
 
 # no prerequisites: raw files are fetched only when missing, never rebuilt
 $(RAW_FILES):
@@ -43,6 +45,10 @@ $(HYRIV):
 # queried from a map service; the admin zip gives the study-area tiles
 $(IGAC_FILES): $(RAW)/hdx_cod_ab/col-administrative-divisions-shapefiles.zip
 	$(PY) scripts/setup/download_igac_drainage.py
+
+# queried from ANT's feature service; fetched only when missing
+$(RESGUARDOS):
+	$(PY) scripts/setup/download_resguardos.py
 
 # --- study area and treatment ---
 STUDY_FILES := $(PROCESSED)/study_municipios.parquet $(PROCESSED)/study_area.parquet
@@ -77,7 +83,7 @@ $(PROCESSED)/loss_patches/patches_%.parquet: $(PROCESSED)/loss/loss_%.tif script
 
 # --- patch covariates (PostGIS; start it with make db) ---
 covariates: $(PROCESSED)/covariates/protected_areas.parquet $(PROCESSED)/covariates/roads.parquet \
-		$(PROCESSED)/covariates/rivers.parquet
+		$(PROCESSED)/covariates/rivers.parquet $(PROCESSED)/covariates/resguardos.parquet
 
 # Empty stamp file: all patches are in PostGIS (~3 min). Make can't see inside the database, so
 # delete the stamp if the database volume is reset
@@ -100,11 +106,17 @@ $(PROCESSED)/covariates/roads.parquet: $(DB_PATCHES) $(RAW)/grip4/GRIP4_Region2_
 	$(PY) scripts/loss/load_targets.py --roads
 	$(PY) scripts/loss/distance_roads.py
 
+$(PROCESSED)/covariates/resguardos.parquet: $(DB_PATCHES) $(RESGUARDOS) \
+		$(PROCESSED)/study_area.parquet scripts/loss/load_targets.py scripts/loss/distance_resguardos.py \
+		scripts/loss/patch_distances.py
+	$(PY) scripts/loss/load_targets.py --resguardos
+	$(PY) scripts/loss/distance_resguardos.py
+
 # --- quick-look maps of the inputs ---
 input-quicklook: figures/inputs/sources.png figures/inputs/rivers_el_doncello.png figures/inputs/treatment.png
 
 figures/inputs/sources.png: scripts/setup/map_inputs.py $(STUDY_FILES) $(PROCESSED)/treatment_all.parquet \
-		$(IGAC_FILES) $(RAW_FILES) $(HYRIV)
+		$(IGAC_FILES) $(RAW_FILES) $(RESGUARDOS) $(HYRIV)
 	$(PY) scripts/setup/map_inputs.py
 
 # written by the same run as sources.png

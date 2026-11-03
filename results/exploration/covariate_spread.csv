@@ -10,6 +10,9 @@ road (GRIP4),road > 10 km,28169,12.85,32.717,89.769,76.919,False,0.0,0.0,0.0
 protected area (RUNAP),all,48000,0.0,5.819,41.191,41.191,False,0.413,0.434,0.39
 protected area (RUNAP),road <= 10 km,19831,0.0,12.039,37.475,37.475,False,0.229,0.258,0.195
 protected area (RUNAP),road > 10 km,28169,0.0,0.0,43.825,43.825,False,0.543,0.557,0.527
+Indigenous resguardo (ANT),all,48000,0.0,10.799,52.636,52.636,False,0.288,0.316,0.257
+Indigenous resguardo (ANT),road <= 10 km,19831,0.0,13.422,49.961,49.961,False,0.174,0.209,0.134
+Indigenous resguardo (ANT),road > 10 km,28169,0.0,8.091,55.111,55.111,False,0.368,0.391,0.344
 river: IGAC single- and double-line,all,48000,0.046,0.282,0.746,0.7,True,0.958,0.995,0.002
 river: IGAC single- and double-line,road <= 10 km,19831,0.039,0.269,0.79,0.751,True,0.945,0.993,0.002
 river: IGAC single- and double-line,road > 10 km,28169,0.053,0.29,0.721,0.668,True,0.966,0.997,0.001

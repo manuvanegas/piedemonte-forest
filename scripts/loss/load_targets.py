@@ -6,16 +6,19 @@ nearest one for a patch closer than that to some feature.
 --runap  protected areas (A6); runap_sub splits each area into pieces of at most 256 vertices (A7)
 --roads  GRIP4 roads (A5); roads_sub as for runap
 --rivers IGAC double-line rivers (A9); rivers_sub as for runap
+--resguardos ANT Indigenous resguardos (A10), repaired with make_valid; resguardos_sub as for runap
 
 In:  data.nosync/raw/runap/runap_latest.zip, data.nosync/raw/grip4/GRIP4_Region2_vector_shp.zip,
-     data.nosync/raw/igac_drenaje/drenaje_doble.parquet
-Out: tables runap, runap_sub, roads, roads_sub, rivers, rivers_sub
+     data.nosync/raw/igac_drenaje/drenaje_doble.parquet, data.nosync/raw/ant_resguardos/resguardos.parquet
+Out: tables runap, runap_sub, roads, roads_sub, rivers, rivers_sub, resguardos, resguardos_sub
 
-Usage: python scripts/loss/load_targets.py [--runap] [--roads] [--rivers]
+Usage: python scripts/loss/load_targets.py [--runap] [--roads] [--rivers] [--resguardos]
 """
 import argparse
 
 import geopandas as gpd
+import pandas as pd
+import shapely
 from sqlalchemy import text
 
 import db
@@ -28,6 +31,7 @@ parser = argparse.ArgumentParser(description="Load target layers into PostGIS.")
 parser.add_argument("--runap", action="store_true", help="protected areas (RUNAP)")
 parser.add_argument("--roads", action="store_true", help="roads (GRIP4)")
 parser.add_argument("--rivers", action="store_true", help="rivers, double-line (IGAC)")
+parser.add_argument("--resguardos", action="store_true", help="Indigenous resguardos (ANT)")
 args = parser.parse_args()
 if not any(vars(args).values()):
     parser.error("say which layers to load, e.g. --runap")
@@ -73,3 +77,19 @@ if args.rivers:
     g.to_postgis("rivers", engine, if_exists="replace", index=False)
     print(f"rivers: {len(g):,} double-line rivers within {TARGET_BUFFER / 1e3:.0f} km "
           f"({subdivide('rivers', 'river_id'):,} pieces)")
+
+if args.resguardos:
+    g = gpd.read_parquet("data.nosync/raw/ant_resguardos/resguardos.parquet",
+                         columns=["OBJECTID", "NOMBRE", "PUEBLO", "ULTIMA_FECHA_ACTO_ADMIN", "geometry"])
+    n_invalid = (~g.is_valid).sum()
+    # self-touching rings; "structure" keeps polygons only
+    g["geometry"] = shapely.make_valid(g.geometry.values, method="structure", keep_collapsed=False)
+    assert g.is_valid.all() and g.geom_type.isin(["Polygon", "MultiPolygon"]).all()
+    g = g.to_crs(CRS)
+    g = g[g.intersects(area.iloc[0])]
+    g = g.rename(columns={"OBJECTID": "res_id", "NOMBRE": "res_name", "PUEBLO": "pueblo"})
+    # epoch ms; the last administrative act, not the constitution date
+    g["last_act_date"] = pd.to_datetime(g.pop("ULTIMA_FECHA_ACTO_ADMIN"), unit="ms").dt.date
+    g.to_postgis("resguardos", engine, if_exists="replace", index=False)
+    print(f"resguardos: {len(g):,} within {TARGET_BUFFER / 1e3:.0f} km "
+          f"({subdivide('resguardos', 'res_id'):,} pieces), {n_invalid} invalid nationally before make_valid")

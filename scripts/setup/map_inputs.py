@@ -1,7 +1,7 @@
 """
 Quick-look maps of the inputs, before any analysis.
 
-Out: figures/inputs/sources.png        roads, protected areas, rivers over the study area
+Out: figures/inputs/sources.png        roads, protected areas, resguardos, rivers over the study area
      figures/inputs/rivers_el_doncello.png  IGAC 1:100k vs HydroRIVERS in one municipio
      figures/inputs/treatment.png      treatment (D7) by municipio, with border shares
 
@@ -12,6 +12,7 @@ from pathlib import Path
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import pandas as pd
+import shapely
 from matplotlib.patches import Patch
 
 RAW = Path("data.nosync/raw")
@@ -24,6 +25,7 @@ HYRIV = f"zip://{RAW}/hydrorivers/HydroRIVERS_v10_sa_shp.zip!HydroRIVERS_v10_sa_
 SIMPLIFY = 200  # m, display only
 LABEL_SHIFT = {"El Dorado": (9000, 9000), "Lejanías": (-12000, 4000)}  # m, avoid overlaps
 C = {"land": "#f4f1ea", "park": "#7fb27f", "road": "#555555", "river": "#1f6fb2", "river1": "#9cc3e6", "river2": "#0b2e59",
+     "res": "#a0522d",
      "hyriv": "#d1495b", "treated": "#c2553d", "added": "#eba08f", "control": "#e8e2d6", "na": "#b5b5b5"}
 
 OUT.mkdir(parents=True, exist_ok=True)
@@ -49,19 +51,24 @@ runap = gpd.read_file(RUNAP, bbox=bbox).to_crs(9377)
 runap = gpd.clip(runap, area_u)
 roads = gpd.clip(gpd.read_file(GRIP, bbox=bbox).to_crs(9377), area_u)
 sen = gpd.clip(gpd.read_parquet(RAW / "igac_drenaje/drenaje_sencillo.parquet").to_crs(9377), area_u)
+res = gpd.read_parquet(RAW / "ant_resguardos/resguardos.parquet", columns=["geometry"])
+res["geometry"] = shapely.make_valid(res.geometry.values, method="structure", keep_collapsed=False)
+res = gpd.clip(res.to_crs(9377), area_u)
 dob = gpd.clip(gpd.read_parquet(RAW / "igac_drenaje/drenaje_doble.parquet").to_crs(9377), area_u)
 
 fig, ax = plt.subplots(figsize=(9, 10))
 depts.plot(ax=ax, color=C["land"], edgecolor="black", linewidth=0.8)
 runap.simplify(SIMPLIFY).plot(ax=ax, color=C["park"], alpha=0.6, linewidth=0)
+# hatch, not fill, so overlaps with protected areas show both
+res.simplify(SIMPLIFY).plot(ax=ax, facecolor="none", edgecolor=C["res"], hatch="////", linewidth=0.5)
 sen.plot(ax=ax, color=C["river1"], linewidth=0.3)
 dob.plot(ax=ax, color=C["river2"], linewidth=0.4, edgecolor=C["river2"])
 roads.plot(ax=ax, color=C["road"], linewidth=0.35)
 for _, r in depts.iterrows():
     p = r.geometry.representative_point()
     ax.annotate(r.ADM1_ES.upper(), (p.x, p.y), fontsize=8, ha="center", alpha=0.5, weight="bold")
-finish(fig, ax, "sources.png", "Study area: protected areas (RUNAP, green), roads (GRIP4, grey),\n"
-       "rivers (IGAC 1:100k; single-line light blue, double-line dark blue)")
+finish(fig, ax, "sources.png", "Study area: protected areas (RUNAP, green), Indigenous resguardos (ANT, brown hatch),\n"
+       "roads (GRIP4, grey), rivers (IGAC 1:100k; single-line light blue, double-line dark blue)")
 
 # --- rivers in El Doncello ---
 mu = munis[munis.ADM2_ES == "El Doncello"]
