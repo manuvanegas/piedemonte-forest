@@ -1,0 +1,27 @@
+# script: explore_covariate_spread.py
+# run: 2026-11-02
+# points: 48,000 random points in forest in 2007, seed 0
+# hex_span_km: 2.81
+# background_draw_eecu_s: 2685.6
+layer,road_zone,n,p10_km,median_km,p90_km,p10_p90_km,fits_in_hex,within_1km,within_2km,zero
+road (GRIP4),all,48000,1.074,14.402,70.621,69.547,False,0.094,0.16,0.0
+road (GRIP4),road <= 10 km,19831,0.451,2.98,8.238,7.787,False,0.229,0.388,0.0
+road (GRIP4),road > 10 km,28169,12.85,32.717,89.769,76.919,False,0.0,0.0,0.0
+protected area (RUNAP),all,48000,0.0,5.819,41.191,41.191,False,0.413,0.434,0.39
+protected area (RUNAP),road <= 10 km,19831,0.0,12.039,37.475,37.475,False,0.229,0.258,0.195
+protected area (RUNAP),road > 10 km,28169,0.0,0.0,43.825,43.825,False,0.543,0.557,0.527
+river: IGAC single- and double-line,all,48000,0.046,0.282,0.746,0.7,True,0.958,0.995,0.002
+river: IGAC single- and double-line,road <= 10 km,19831,0.039,0.269,0.79,0.751,True,0.945,0.993,0.002
+river: IGAC single- and double-line,road > 10 km,28169,0.053,0.29,0.721,0.668,True,0.966,0.997,0.001
+river: IGAC double-line,all,48000,1.55,10.919,29.666,28.116,False,0.067,0.126,0.002
+river: IGAC double-line,road <= 10 km,19831,1.279,9.843,29.931,28.652,False,0.079,0.148,0.002
+river: IGAC double-line,road > 10 km,28169,1.774,11.648,29.512,27.739,False,0.059,0.111,0.001
+river: HydroRIVERS >= 1 m3/s,all,48000,0.255,1.32,3.081,2.826,False,0.389,0.701,0.0
+river: HydroRIVERS >= 1 m3/s,road <= 10 km,19831,0.276,1.367,3.195,2.919,False,0.371,0.688,0.0
+river: HydroRIVERS >= 1 m3/s,road > 10 km,28169,0.244,1.285,3.012,2.768,True,0.401,0.71,0.0
+river: HydroRIVERS >= 5 m3/s,all,48000,0.621,3.393,7.981,7.36,False,0.16,0.315,0.0
+river: HydroRIVERS >= 5 m3/s,road <= 10 km,19831,0.641,3.36,8.087,7.445,False,0.156,0.318,0.0
+river: HydroRIVERS >= 5 m3/s,road > 10 km,28169,0.605,3.411,7.909,7.304,False,0.163,0.313,0.0
+river: HydroRIVERS >= 20 m3/s,all,48000,1.2,6.655,15.216,14.017,False,0.083,0.168,0.0
+river: HydroRIVERS >= 20 m3/s,road <= 10 km,19831,1.238,6.812,15.805,14.567,False,0.08,0.167,0.0
+river: HydroRIVERS >= 20 m3/s,road > 10 km,28169,1.172,6.557,14.761,13.589,False,0.085,0.169,0.0
