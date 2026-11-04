@@ -17,6 +17,7 @@ from shapely.geometry import mapping
 
 ASSET = "projects/mapbiomas-colombia/assets/LULC/COLECCION3/INTEGRACION/COLOMBIA-1"
 FIRST_YEAR, LAST_YEAR = 2008, 2023  # last year needs t+1 = 2024
+HISTORY_FIRST = 2005  # 2005-2007: earlier-clearing targets only, not outcomes (D14)
 
 FOREST = [3, 6]  # forest, flooded forest (D11)
 ANTHRO = [9, 21, 24, 25, 30, 31, 35, 74, 75]  # D10
@@ -31,7 +32,7 @@ def is_in(img, classes):
 
 
 def loss(year):
-    assert FIRST_YEAR <= year <= LAST_YEAR, year
+    assert HISTORY_FIRST <= year <= LAST_YEAR, year
     forest = [is_in(lulc(y), FOREST) for y in (year - 2, year - 1)]
     anthro = [is_in(lulc(y), ANTHRO) for y in (year, year + 1)]
     return forest[0].And(forest[1]).And(anthro[0]).And(anthro[1]).rename(f"loss_{year}")

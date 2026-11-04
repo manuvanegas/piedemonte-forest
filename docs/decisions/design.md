@@ -1,6 +1,6 @@
 # Decisions: design
 
-Next ID: D14.
+Next ID: D15.
 
 - **D1** **Study area: Caquetá, Guaviare, Meta, Putumayo (62 municipios, HDX COD-AB 2020).** The core of the Amazon deforestation frontier, spanning Andean foothills, Amazon lowland forest and Llanos savanna.
 - **D2** [SUPERSEDED → D7] **Treatment: `FARC1` from the Prem et al. (2020) replication data** (at least one violent event attributed to the group, 2011–2014). It measures violent presence, not territorial control: a municipio held without contest can score 0. `FARC2` and `FARC_N` serve as robustness variants.
@@ -19,3 +19,4 @@ Next ID: D14.
 ## References
 
 Galindo, G., Espejo, O.J., Rubiano, J.C., Vergara, L.K., Cabrera, E., 2014. Protocolo de procesamiento digital de imágenes para la cuantificación de la deforestación en Colombia, v2.0. Instituto de Hidrología, Meteorología y Estudios Ambientales (IDEAM), Bogotá. https://bart.ideam.gov.co/smbyc/Publicaciones/Protocolo%20de%20PDI%20para%20la%20cuantificacion%20de%20la%20deforestacion%20en%20colombia%20v2_1_.pdf
+- **D14** **Distance to earlier clearing: to the nearest loss patch of the three previous years (t−3 to t−1), never the same year. Loss for 2005–2007 is computed with the same rule (D9, D13) only to serve as earlier clearings for 2008–2010; it enters no area, rate or emission.** Measured against all patches since the first loss year, the target set grows every year and distances shrink for that reason alone: on 2,000 sampled patches per year, the 90th percentile fell from 803 m (2009) to 150 m (2021) and the share of patches touching an earlier one rose from 28% to 68%, while with a three-year window, over all patches, the 90th percentile stays between 379 and 481 m and the share touching between 35% and 44% in every year from 2008 to 2023. A one-year window responds more to a clearing detected a year early or late; with five years, the median is already 0 m in 2015. About 40% of patches touch an earlier one (distance 0), so the share at 0 m is reported with the median.

@@ -69,12 +69,16 @@ $(PROCESSED)/treatment_all.parquet: $(PROCESSED)/treatment.parquet ;
 YEARS := $(shell seq 2008 2023)
 LOSS_TIFS := $(YEARS:%=$(PROCESSED)/loss/loss_%.tif)
 PATCHES := $(YEARS:%=$(PROCESSED)/loss_patches/patches_%.parquet)
+# earlier clearings for 2008-2010 only (D14)
+LOOKBACK_YEARS := 2005 2006 2007
+LOOKBACK_TIFS := $(LOOKBACK_YEARS:%=$(PROCESSED)/loss/loss_%.tif)
+LOOKBACK_PATCHES := $(LOOKBACK_YEARS:%=$(PROCESSED)/loss_patches/patches_%.parquet)
 
-loss: $(PATCHES)
+loss: $(PATCHES) $(LOOKBACK_PATCHES)
 
 # Earth Engine, ~5 min and ~1.8 EECU-h a year. No prerequisites: fetched only when missing, never
 # rebuilt because a script changed (delete the file to refetch)
-$(LOSS_TIFS):
+$(LOSS_TIFS) $(LOOKBACK_TIFS):
 	$(PY) scripts/loss/download_loss.py $(patsubst $(PROCESSED)/loss/loss_%.tif,%,$@)
 
 $(PROCESSED)/loss_patches/patches_%.parquet: $(PROCESSED)/loss/loss_%.tif scripts/loss/vectorize_loss.py \
@@ -88,7 +92,7 @@ $(PROCESSED)/slope/slope.tif:
 # --- patch covariates (PostGIS; start it with make db) ---
 covariates: $(PROCESSED)/covariates/protected_areas.parquet $(PROCESSED)/covariates/roads.parquet \
 		$(PROCESSED)/covariates/rivers.parquet $(PROCESSED)/covariates/resguardos.parquet \
-		$(PROCESSED)/covariates/slope.parquet
+		$(PROCESSED)/covariates/earlier_clearings.parquet $(PROCESSED)/covariates/slope.parquet
 
 # Empty stamp file: all patches are in PostGIS (~3 min). Make can't see inside the database, so
 # delete the stamp if the database volume is reset
@@ -96,6 +100,12 @@ DB_PATCHES := $(PROCESSED)/db/patches.loaded
 
 $(DB_PATCHES): $(PATCHES) scripts/loss/load_patches.py
 	$(PY) scripts/loss/load_patches.py
+	@mkdir -p $(@D) && touch $@
+
+DB_LOOKBACK := $(PROCESSED)/db/lookback_patches.loaded
+
+$(DB_LOOKBACK): $(LOOKBACK_PATCHES) scripts/loss/load_patches.py
+	$(PY) scripts/loss/load_patches.py --lookback
 	@mkdir -p $(@D) && touch $@
 
 # ~5 min
@@ -135,6 +145,11 @@ $(PROCESSED)/covariates/rivers.parquet: $(DB_PATCHES) $(RAW)/igac_drenaje/drenaj
 		scripts/loss/patch_distances.py
 	$(PY) scripts/loss/load_targets.py --rivers
 	$(PY) scripts/loss/distance_rivers.py
+
+# ~6 min
+$(PROCESSED)/covariates/earlier_clearings.parquet: $(DB_PATCHES) $(DB_LOOKBACK) \
+		scripts/loss/distance_earlier_clearings.py scripts/loss/patch_distances.py
+	$(PY) scripts/loss/distance_earlier_clearings.py
 
 # local, ~5 min; no PostGIS
 $(PROCESSED)/covariates/slope.parquet: $(PATCHES) $(PROCESSED)/slope/slope.tif scripts/loss/slope_per_patch.py \

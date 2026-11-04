@@ -1,9 +1,9 @@
 """
 Exploration: how much distance to each target layer varies across the forest, overall and by road
-zone (nearest road within 10 km or farther). Loss patches are not used. A layer whose p10-p90 range
-fits inside one H3 res-7 hex (corner to corner) gives hexes nearly the same value, whatever the
-grouping, so it can't tell them apart. Roads are the main other way in; the far zone shows what a
-layer offers away from them.
+zone (nearest road within 10 km or farther). Loss patches serve only as a target (earlier clearing).
+A layer whose p10-p90 range fits inside one H3 res-7 hex (corner to corner) gives hexes nearly the
+same value, whatever the grouping, so it can't tell them apart. Roads are the main other way in; the
+far zone shows what a layer offers away from them.
 
 Points: 48,000 random points in forest (classes 3 and 6, D11) in 2007, the year before the first loss
 year, drawn in the study area; the forest flag comes from Earth Engine, coordinates are drawn locally.
@@ -33,6 +33,7 @@ from patch_distances import TARGET_BUFFER
 
 RAW = Path("data.nosync/raw")
 POINTS = Path("data.nosync/processed/exploration/background_points.parquet")
+PATCHES = Path("data.nosync/processed/loss_patches")
 OUT = Path("results/exploration/covariate_spread.csv")
 CRS = 9377
 N_POINTS = 48_000
@@ -78,10 +79,15 @@ def targets(ring):
     res = gpd.read_parquet(RAW / "ant_resguardos/resguardos.parquet", columns=["geometry"])
     res["geometry"] = shapely.make_valid(res.geometry.values, method="structure", keep_collapsed=False)
     hyriv = read(f"zip://{HYRIV}!HydroRIVERS_v10_sa_shp/HydroRIVERS_v10_sa.shp", columns=["DIS_AV_CMS"])
+    # the three-year window before the first loss year (D14); patches are inside the study area
+    earlier = pd.concat([gpd.read_parquet(PATCHES / f"patches_{y}.parquet", columns=["n_px", "geometry"])
+                         for y in range(FOREST_YEAR - 2, FOREST_YEAR + 1)])
+    earlier = earlier[earlier.n_px >= 2]  # D13
     layers = {
         "road (GRIP4)": roads,
         "protected area (RUNAP)": runap,
         "Indigenous resguardo (ANT)": res.to_crs(CRS),
+        f"earlier clearing ({FOREST_YEAR - 2}-{FOREST_YEAR} loss)": earlier,
         "river: IGAC single- and double-line": pd.concat([single, double]),
         "river: IGAC double-line": double,
         **{f"river: HydroRIVERS >= {q} m3/s": hyriv[hyriv.DIS_AV_CMS >= q] for q in (1, 5, 20)},
