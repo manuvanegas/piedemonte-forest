@@ -43,6 +43,7 @@ Prem et al. (2020) code a municipio as having armed-group presence if at least o
 | HydroRIVERS (Lehner and Grill, 2013) | Comparison with IGAC rivers (quick-look maps and covariate exploration) | v1.0 |
 | RUNAP | Protected areas | accessed 2026-06-28 |
 | ANT resguardos (Agencia Nacional de Tierras, 2026) | Indigenous resguardos | data updated 2026-06-25, accessed 2026-11-02 |
+| SRTM (Farr et al., 2007) | Slope | SRTMGL1 v3 (1 arc-second, 2000), via Earth Engine |
 | HDX COD-AB (DANE) | Municipio boundaries | 2020 |
 | Prem et al. (2020) replication data | Pre-ceasefire armed-group presence (`FARC1`, `FARC2`) | authors' replication files (dated 2020-03-04), accessed 2026-06-28 |
 
@@ -56,7 +57,7 @@ Rivers come from IGAC's 1:100,000 drainage rather than HydroRIVERS, whose channe
 
 The following is a rough sketch of the three parts of the analysis. Years up to 2014 are pre-ceasefire, and 2015 is the first post-ceasefire year.
 
-1. **Loss patches.** Annual MapBiomas land cover gives the forest pixels lost each year and whether they were primary forest or secondary regrowth. A pixel counts as lost in year t if it was forest in the two previous years and an agricultural or other human-made class in t and t+1, which filters out single-year classification errors (2008–2023). Loss pixels are grouped into patches of pixels that share an edge; single-pixel patches are left out of the analysis. Each patch is measured against roads, rivers, protected areas, Indigenous resguardos and earlier clearings. Patterns before and after the ceasefire are compared between municipios with and without pre-ceasefire armed-group presence. Hansen loss serves as a cross-check.
+1. **Loss patches.** Annual MapBiomas land cover gives the forest pixels lost each year and whether they were primary forest or secondary regrowth. A pixel counts as lost in year t if it was forest in the two previous years and an agricultural or other human-made class in t and t+1, which filters out single-year classification errors (2008–2023). Loss pixels are grouped into patches of pixels that share an edge; single-pixel patches are left out of the analysis. Each patch is measured against roads, rivers, protected areas, Indigenous resguardos and earlier clearings. Each patch also gets its mean slope ([A11](docs/decisions/data.md)). Patterns before and after the ceasefire are compared between municipios with and without pre-ceasefire armed-group presence. Hansen loss serves as a cross-check.
 2. **Spatial model.** Loss rates are summarised on a hexagon grid (H3). Clustering is measured with Moran's I and local indicators of spatial association (LISA), and loss rates are modelled with OLS and spatial lag and error models.
 3. **Emissions.** Loss area is multiplied by emission factors derived from ESA CCI above-ground biomass, giving gross CO₂ by year, forest type and armed-group presence.
 
@@ -90,11 +91,15 @@ The `Makefile` holds the run order: each target is an output file, rebuilt only 
 
 [dataset] Agencia Nacional de Tierras, 2026. Resguardo Indígena Formalizado. Dirección de Asuntos Étnicos, data updated 25 June 2026. © Agencia Nacional de Tierras - Dirección de Asuntos Étnicos 2022, licensed under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/); clipped to the study area and self-touching polygons repaired. https://utility.arcgis.com/usrsvcs/servers/8944116ccfd34a7189c4bc44b8e19186/rest/services/DatosAbiertos/Resguardo_Indigena_Formalizado/FeatureServer/0 (accessed 2 November 2026).
 
+Farr, T.G., Rosen, P.A., Caro, E., Crippen, R., Duren, R., Hensley, S., Kobrick, M., Paller, M., Rodriguez, E., Roth, L., Seal, D., Shaffer, S., Shimada, J., Umland, J., Werner, M., Oskin, M., Burbank, D., Alsdorf, D., 2007. The Shuttle Radar Topography Mission. Rev. Geophys. 45, RG2004. https://doi.org/10.1029/2005RG000183
+
 Hansen, M.C., Potapov, P.V., Moore, R., Hancher, M., Turubanova, S.A., Tyukavina, A., Thau, D., Stehman, S.V., Goetz, S.J., Loveland, T.R., Kommareddy, A., Egorov, A., Chini, L., Justice, C.O., Townshend, J.R.G., 2013. High-resolution global maps of 21st-century forest cover change. Science 342, 850–853. https://doi.org/10.1126/science.1244693
 
 Lehner, B., Grill, G., 2013. Global river hydrography and network routing: baseline data and new approaches to study the world's large river systems. Hydrol. Process. 27, 2171–2186. https://doi.org/10.1002/hyp.9740
 
 Meijer, J.R., Huijbregts, M.A.J., Schotten, K.C.G.J., Schipper, A.M., 2018. Global patterns of current and future road infrastructure. Environ. Res. Lett. 13, 064006. https://doi.org/10.1088/1748-9326/aabd42
+
+[dataset] NASA JPL, 2013. NASA Shuttle Radar Topography Mission Global 1 arc second, version 3. NASA EOSDIS Land Processes DAAC; public domain; accessed through Google Earth Engine (USGS/SRTMGL1_003). https://doi.org/10.5067/MEaSUREs/SRTM/SRTMGL1.003
 
 Prem, M., Saavedra, S., Vargas, J.F., 2020. End-of-conflict deforestation: evidence from Colombia's peace agreement. World Dev. 129, 104852. https://doi.org/10.1016/j.worlddev.2019.104852
 

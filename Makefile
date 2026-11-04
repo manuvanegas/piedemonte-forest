@@ -81,9 +81,14 @@ $(PROCESSED)/loss_patches/patches_%.parquet: $(PROCESSED)/loss/loss_%.tif script
 		scripts/loss/patch_tools.py $(STUDY_FILES) $(PROCESSED)/treatment.parquet
 	$(PY) scripts/loss/vectorize_loss.py $*
 
+# Earth Engine, ~0.25 EECU-h; fetched only when missing, like the loss rasters
+$(PROCESSED)/slope/slope.tif:
+	$(PY) scripts/loss/download_slope.py
+
 # --- patch covariates (PostGIS; start it with make db) ---
 covariates: $(PROCESSED)/covariates/protected_areas.parquet $(PROCESSED)/covariates/roads.parquet \
-		$(PROCESSED)/covariates/rivers.parquet $(PROCESSED)/covariates/resguardos.parquet
+		$(PROCESSED)/covariates/rivers.parquet $(PROCESSED)/covariates/resguardos.parquet \
+		$(PROCESSED)/covariates/slope.parquet
 
 # Empty stamp file: all patches are in PostGIS (~3 min). Make can't see inside the database, so
 # delete the stamp if the database volume is reset
@@ -130,3 +135,8 @@ $(PROCESSED)/covariates/rivers.parquet: $(DB_PATCHES) $(RAW)/igac_drenaje/drenaj
 		scripts/loss/patch_distances.py
 	$(PY) scripts/loss/load_targets.py --rivers
 	$(PY) scripts/loss/distance_rivers.py
+
+# local, ~5 min; no PostGIS
+$(PROCESSED)/covariates/slope.parquet: $(PATCHES) $(PROCESSED)/slope/slope.tif scripts/loss/slope_per_patch.py \
+		scripts/loss/patch_tools.py
+	$(PY) scripts/loss/slope_per_patch.py

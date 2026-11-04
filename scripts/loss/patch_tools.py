@@ -58,6 +58,17 @@ def patch_attributes(labels, n_px, to_class, sec_age):
                         index=pd.Index(np.arange(1, len(n_px)), name="patch_id"))
 
 
+def patch_mean(labels, n_px, values, valid):
+    """Mean of `values` over each component's `valid` pixels; array of length n (patch_id 1..n),
+    NaN where a component has no valid pixel."""
+    m = (labels > 0) & valid
+    labs = labels[m]
+    total = np.bincount(labs, weights=values[m].astype(float), minlength=len(n_px))[1:]
+    count = np.bincount(labs, minlength=len(n_px))[1:]
+    with np.errstate(invalid="ignore"):
+        return total / count
+
+
 def polygonize(labels, transform):
     """(patch_ids, polygons) lists. 4-connected labels only: then each label is one polygon."""
     pairs = shapes(labels, mask=labels > 0, connectivity=4, transform=transform)

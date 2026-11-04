@@ -1,0 +1,5 @@
+# script: explore_slope_spread.py
+# run: 2026-11-03
+# points: 48,000 random points in forest in 2007 (explore_covariate_spread.py)
+layer,n,no_data,p10_deg,median_deg,p90_deg,under_5deg,over_15deg
+slope (SRTM),47997,3,1.3,3.7,13.9,0.662,0.093
