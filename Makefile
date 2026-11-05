@@ -82,12 +82,12 @@ $(LOSS_TIFS) $(LOOKBACK_TIFS):
 	$(PY) scripts/loss/download_loss.py $(patsubst $(PROCESSED)/loss/loss_%.tif,%,$@)
 
 $(PROCESSED)/loss_patches/patches_%.parquet: $(PROCESSED)/loss/loss_%.tif scripts/loss/vectorize_loss.py \
-		scripts/loss/patch_tools.py $(STUDY_FILES) $(PROCESSED)/treatment.parquet
+		src/piedemonte_forest/patch_tools.py $(STUDY_FILES) $(PROCESSED)/treatment.parquet
 	$(PY) scripts/loss/vectorize_loss.py $*
 
 # Earth Engine, ~0.25 EECU-h; fetched only when missing, like the loss rasters
 $(PROCESSED)/slope/slope.tif:
-	$(PY) scripts/loss/download_slope.py
+	$(PY) scripts/covariates/download_slope.py
 
 # --- patch covariates (PostGIS; start it with make db) ---
 covariates: $(PROCESSED)/covariates/protected_areas.parquet $(PROCESSED)/covariates/roads.parquet \
@@ -110,22 +110,22 @@ $(DB_LOOKBACK): $(LOOKBACK_PATCHES) scripts/loss/load_patches.py
 
 # ~5 min
 $(PROCESSED)/covariates/protected_areas.parquet: $(DB_PATCHES) $(RAW)/runap/runap_latest.zip \
-		$(PROCESSED)/study_area.parquet scripts/loss/load_targets.py scripts/loss/distance_protected_areas.py scripts/loss/patch_distances.py
-	$(PY) scripts/loss/load_targets.py --runap
-	$(PY) scripts/loss/distance_protected_areas.py
+		$(PROCESSED)/study_area.parquet scripts/covariates/load_targets.py scripts/covariates/distance_protected_areas.py src/piedemonte_forest/patch_distances.py
+	$(PY) scripts/covariates/load_targets.py --runap
+	$(PY) scripts/covariates/distance_protected_areas.py
 
 # ~7 min
 $(PROCESSED)/covariates/roads.parquet: $(DB_PATCHES) $(RAW)/grip4/GRIP4_Region2_vector_shp.zip \
-		$(PROCESSED)/study_area.parquet scripts/loss/load_targets.py scripts/loss/distance_roads.py \
-		scripts/loss/patch_distances.py
-	$(PY) scripts/loss/load_targets.py --roads
-	$(PY) scripts/loss/distance_roads.py
+		$(PROCESSED)/study_area.parquet scripts/covariates/load_targets.py scripts/covariates/distance_roads.py \
+		src/piedemonte_forest/patch_distances.py
+	$(PY) scripts/covariates/load_targets.py --roads
+	$(PY) scripts/covariates/distance_roads.py
 
 $(PROCESSED)/covariates/resguardos.parquet: $(DB_PATCHES) $(RESGUARDOS) \
-		$(PROCESSED)/study_area.parquet scripts/loss/load_targets.py scripts/loss/distance_resguardos.py \
-		scripts/loss/patch_distances.py
-	$(PY) scripts/loss/load_targets.py --resguardos
-	$(PY) scripts/loss/distance_resguardos.py
+		$(PROCESSED)/study_area.parquet scripts/covariates/load_targets.py scripts/covariates/distance_resguardos.py \
+		src/piedemonte_forest/patch_distances.py
+	$(PY) scripts/covariates/load_targets.py --resguardos
+	$(PY) scripts/covariates/distance_resguardos.py
 
 # --- quick-look maps of the inputs ---
 input-quicklook: figures/inputs/sources.png figures/inputs/rivers_el_doncello.png figures/inputs/treatment.png
@@ -141,17 +141,17 @@ db:
 	docker compose up -d
 
 $(PROCESSED)/covariates/rivers.parquet: $(DB_PATCHES) $(RAW)/igac_drenaje/drenaje_doble.parquet \
-		$(PROCESSED)/study_area.parquet scripts/loss/load_targets.py scripts/loss/distance_rivers.py \
-		scripts/loss/patch_distances.py
-	$(PY) scripts/loss/load_targets.py --rivers
-	$(PY) scripts/loss/distance_rivers.py
+		$(PROCESSED)/study_area.parquet scripts/covariates/load_targets.py scripts/covariates/distance_rivers.py \
+		src/piedemonte_forest/patch_distances.py
+	$(PY) scripts/covariates/load_targets.py --rivers
+	$(PY) scripts/covariates/distance_rivers.py
 
 # ~6 min
 $(PROCESSED)/covariates/earlier_clearings.parquet: $(DB_PATCHES) $(DB_LOOKBACK) \
-		scripts/loss/distance_earlier_clearings.py scripts/loss/patch_distances.py
-	$(PY) scripts/loss/distance_earlier_clearings.py
+		scripts/covariates/distance_earlier_clearings.py src/piedemonte_forest/patch_distances.py
+	$(PY) scripts/covariates/distance_earlier_clearings.py
 
 # local, ~5 min; no PostGIS
-$(PROCESSED)/covariates/slope.parquet: $(PATCHES) $(PROCESSED)/slope/slope.tif scripts/loss/slope_per_patch.py \
-		scripts/loss/patch_tools.py
-	$(PY) scripts/loss/slope_per_patch.py
+$(PROCESSED)/covariates/slope.parquet: $(PATCHES) $(PROCESSED)/slope/slope.tif scripts/covariates/slope_per_patch.py \
+		src/piedemonte_forest/patch_tools.py
+	$(PY) scripts/covariates/slope_per_patch.py

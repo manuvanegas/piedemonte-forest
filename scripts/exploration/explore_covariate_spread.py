@@ -14,7 +14,7 @@ data.nosync/processed/exploration/background_points.parquet, the table to
 results/exploration/covariate_spread.csv; both are reused. --rerun recomputes the table from the
 saved points, --redraw also draws new points (Earth Engine).
 
-Usage: python scripts/loss/explore_covariate_spread.py [--rerun | --redraw]
+Usage: python scripts/exploration/explore_covariate_spread.py [--rerun | --redraw]
 """
 import os
 import sys
@@ -28,8 +28,8 @@ import pandas as pd
 import shapely
 from dotenv import load_dotenv
 
-import loss_rule as lr
-from patch_distances import TARGET_BUFFER
+from piedemonte_forest import loss_rule as lr
+from piedemonte_forest.patch_distances import TARGET_BUFFER
 
 RAW = Path("data.nosync/raw")
 POINTS = Path("data.nosync/processed/exploration/background_points.parquet")

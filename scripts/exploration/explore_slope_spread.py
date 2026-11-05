@@ -6,7 +6,7 @@ in km and judged against the hex span; slope is in degrees.
 In:  data.nosync/processed/exploration/background_points.parquet, data.nosync/processed/slope/slope.tif
 Out: results/exploration/slope_spread.csv
 
-Usage: python scripts/loss/explore_slope_spread.py
+Usage: python scripts/exploration/explore_slope_spread.py
 """
 from pathlib import Path
 
@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import rasterio
 
-import loss_rule as lr
+from piedemonte_forest import loss_rule as lr
 
 POINTS = Path("data.nosync/processed/exploration/background_points.parquet")
 SLOPE = Path("data.nosync/processed/slope/slope.tif")

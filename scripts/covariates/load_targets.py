@@ -12,7 +12,7 @@ In:  data.nosync/raw/runap/runap_latest.zip, data.nosync/raw/grip4/GRIP4_Region2
      data.nosync/raw/igac_drenaje/drenaje_doble.parquet, data.nosync/raw/ant_resguardos/resguardos.parquet
 Out: tables runap, runap_sub, roads, roads_sub, rivers, rivers_sub, resguardos, resguardos_sub
 
-Usage: python scripts/loss/load_targets.py [--runap] [--roads] [--rivers] [--resguardos]
+Usage: python scripts/covariates/load_targets.py [--runap] [--roads] [--rivers] [--resguardos]
 """
 import argparse
 
@@ -21,8 +21,8 @@ import pandas as pd
 import shapely
 from sqlalchemy import text
 
-import db
-from patch_distances import TARGET_BUFFER
+from piedemonte_forest import db
+from piedemonte_forest.patch_distances import TARGET_BUFFER
 
 CRS = 9377
 MAX_VERTICES = 256

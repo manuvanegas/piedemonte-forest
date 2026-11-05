@@ -6,7 +6,7 @@ and loss under the rule.
 Earth Engine: one reduction over 75 bands. About 3.3 EECU-h. The result is saved to
 results/initial-checks/flicker.csv and reused; --rerun recomputes it.
 
-Usage: python scripts/loss/check_flicker.py [--rerun]
+Usage: python scripts/checks/check_flicker.py [--rerun]
 """
 import os
 import sys
@@ -16,7 +16,7 @@ import ee
 import pandas as pd
 from dotenv import load_dotenv
 
-import loss_rule as lr
+from piedemonte_forest import loss_rule as lr
 
 YEARS = range(lr.FIRST_YEAR, 2023)  # t+2 <= 2024
 OUT = Path("results/initial-checks/flicker.csv")

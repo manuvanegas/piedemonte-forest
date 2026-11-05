@@ -7,7 +7,7 @@ Out: data.nosync/processed/slope/slope.tif (COG). Tiles are cached while it runs
 run resumes; they are deleted once the file is written. Cost (EECU-s) goes to download_log.csv.
 --tiles N fetches only the first N tiles and stops (cost test).
 
-Usage: python scripts/loss/download_slope.py [--tiles N] [--workers N]
+Usage: python scripts/covariates/download_slope.py [--tiles N] [--workers N]
 """
 import os
 import shutil
@@ -24,8 +24,8 @@ import pandas as pd
 import rasterio
 from dotenv import load_dotenv
 
-import loss_rule as lr
-from gee_tiles import Grid
+from piedemonte_forest import loss_rule as lr
+from piedemonte_forest.gee_tiles import Grid
 
 OUT = Path("data.nosync/processed/slope/slope.tif")
 LOG = OUT.parent / "download_log.csv"

@@ -8,7 +8,7 @@ from rasterio.features import shapes
 from scipy import ndimage
 from shapely.geometry import shape
 
-import loss_rule as lr
+from piedemonte_forest import loss_rule as lr
 
 
 def decode(code):

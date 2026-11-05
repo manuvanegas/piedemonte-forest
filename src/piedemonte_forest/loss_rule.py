@@ -1,6 +1,6 @@
 """
 MapBiomas Colombia Col. 3 classes and the annual forest-loss rule, as Earth Engine images.
-Shared by the scripts in scripts/loss/. Decisions D8–D11 in docs/decisions/design.md.
+Shared by the scripts in scripts/. Decisions D8–D11 in docs/decisions/design.md.
 
 loss_t = forest in t-2 and t-1, anthropic in t and t+1.
 """

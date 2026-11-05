@@ -6,7 +6,7 @@ against RUNAP as loaded and split into pieces of at most 256 vertices (runap_sub
 Needs PostGIS loaded by load_patches.py (2015 at least) and load_targets.py --runap. The result is saved to
 results/initial-checks/nearest_timing.csv and reused; --rerun recomputes it.
 
-Usage: python scripts/loss/check_nearest_timing.py [--rerun]
+Usage: python scripts/checks/check_nearest_timing.py [--rerun]
 """
 import platform
 import sys
@@ -16,9 +16,9 @@ from pathlib import Path
 import pandas as pd
 from sqlalchemy import text
 
-import db
-import loss_rule as lr
-from patch_distances import nearest_sql
+from piedemonte_forest import db
+from piedemonte_forest import loss_rule as lr
+from piedemonte_forest.patch_distances import nearest_sql
 
 OUT = Path("results/initial-checks/nearest_timing.csv")
 N = 10_000

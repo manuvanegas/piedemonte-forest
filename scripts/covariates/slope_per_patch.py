@@ -7,7 +7,7 @@ In:  data.nosync/processed/loss/loss_<year>.tif, data.nosync/processed/slope/slo
      data.nosync/processed/loss_patches/patches_<year>.parquet (to check the labels)
 Out: data.nosync/processed/covariates/slope.parquet (patches with n_px >= 2, D13)
 
-Usage: python scripts/loss/slope_per_patch.py
+Usage: python scripts/covariates/slope_per_patch.py
 """
 import time
 from pathlib import Path
@@ -16,8 +16,8 @@ import numpy as np
 import pandas as pd
 import rasterio
 
-import loss_rule as lr
-import patch_tools as pt
+from piedemonte_forest import loss_rule as lr
+from piedemonte_forest import patch_tools as pt
 
 LOSS = Path("data.nosync/processed/loss")
 PATCHES = Path("data.nosync/processed/loss_patches")

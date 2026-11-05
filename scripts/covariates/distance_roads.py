@@ -5,7 +5,7 @@ roads_sub, with that road's GRIP4 type (2 primary, 3 secondary, 4 tertiary, 5 lo
 Needs PostGIS loaded by load_patches.py (all years) and load_targets.py --roads.
 Out: data.nosync/processed/covariates/roads.parquet
 
-Usage: python scripts/loss/distance_roads.py
+Usage: python scripts/covariates/distance_roads.py
 """
 import time
 from pathlib import Path
@@ -13,8 +13,8 @@ from pathlib import Path
 import pandas as pd
 from sqlalchemy import text
 
-import db
-from patch_distances import TARGET_BUFFER, nearest_sql
+from piedemonte_forest import db
+from piedemonte_forest.patch_distances import TARGET_BUFFER, nearest_sql
 
 OUT = Path("data.nosync/processed/covariates/roads.parquet")
 

@@ -5,7 +5,7 @@ against runap_sub (A7). A patch overlapping or touching an area gets distance 0 
 Needs PostGIS loaded by load_patches.py (all years) and load_targets.py --runap.
 Out: data.nosync/processed/covariates/protected_areas.parquet
 
-Usage: python scripts/loss/distance_protected_areas.py
+Usage: python scripts/covariates/distance_protected_areas.py
 """
 import time
 from pathlib import Path
@@ -13,8 +13,8 @@ from pathlib import Path
 import pandas as pd
 from sqlalchemy import text
 
-import db
-from patch_distances import TARGET_BUFFER, nearest_sql
+from piedemonte_forest import db
+from piedemonte_forest.patch_distances import TARGET_BUFFER, nearest_sql
 
 OUT = Path("data.nosync/processed/covariates/protected_areas.parquet")
 

@@ -15,8 +15,8 @@ from pathlib import Path
 import geopandas as gpd
 import rasterio
 
-import loss_rule as lr
-import patch_tools as pt
+from piedemonte_forest import loss_rule as lr
+from piedemonte_forest import patch_tools as pt
 
 LOSS = Path("data.nosync/processed/loss")
 OUT = Path("data.nosync/processed/loss_patches")

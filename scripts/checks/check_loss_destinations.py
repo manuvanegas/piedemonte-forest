@@ -8,7 +8,7 @@ results/initial-checks/loss_destinations_<t>.csv and reused; --rerun recomputes 
 Comparison: forest → class t-1 → t for the four departments, from the MapBiomas Colombia Col. 3
 transition statistics (~104 MB zip, downloaded once). Theirs is a plain one-year transition.
 
-Usage: python scripts/loss/check_loss_destinations.py [year] [--rerun]
+Usage: python scripts/checks/check_loss_destinations.py [year] [--rerun]
 """
 import io
 import os
@@ -21,7 +21,7 @@ import pandas as pd
 import requests
 from dotenv import load_dotenv
 
-import loss_rule as lr
+from piedemonte_forest import loss_rule as lr
 
 T = int(next((a for a in sys.argv[1:] if a.isdigit()), 2015))
 OUT = Path(f"results/initial-checks/loss_destinations_{T}.csv")

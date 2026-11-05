@@ -24,7 +24,7 @@ DEPTS = ["Caquetá", "Guaviare", "Meta", "Putumayo"]
 SVC = "http://dhime.ideam.gov.co/server/rest/services/Cartografia_Basica/Hidrografia/MapServer"
 LAYERS = {"drenaje_sencillo.parquet": 0, "drenaje_doble.parquet": 1}
 TILE = 0.5
-BUFFER = 200_000  # m, as TARGET_BUFFER in scripts/loss/patch_distances.py
+BUFFER = 200_000  # m, as TARGET_BUFFER in src/piedemonte_forest/patch_distances.py
 PAGE = 1000
 HDR = {"User-Agent": "Mozilla/5.0"}  # the server rejects requests without one
 

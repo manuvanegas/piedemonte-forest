@@ -85,7 +85,7 @@ make study                        # study area and treatment table
 make input-quicklook              # optional: quick-look maps of the inputs (downloads HydroRIVERS, ~95 MB)
 ```
 
-The `Makefile` holds the run order: each target is an output file, rebuilt only when missing or older than its inputs. Scripts live in `scripts/<stage>/` and run from the repository root.
+The `Makefile` holds the run order: each target is an output file, rebuilt only when missing or older than its inputs. Scripts live in `scripts/<stage>/` and run from the repository root. The modules they share are in `src/piedemonte_forest/`, installed into the environment by `environment.yml`.
 
 ## References
 

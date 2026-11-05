@@ -6,7 +6,7 @@ Per year and connectivity (4, 8): loss pixels, components and secondary share by
 (1, 2, 3-5, 6-10, 11-100, >100 px). Local only (no Earth Engine). The result is saved to
 results/initial-checks/patch_sizes.csv and reused; --rerun recomputes it.
 
-Usage: python scripts/loss/check_patch_sizes.py [--rerun]
+Usage: python scripts/checks/check_patch_sizes.py [--rerun]
 """
 import sys
 from pathlib import Path
@@ -15,8 +15,8 @@ import numpy as np
 import pandas as pd
 import rasterio
 
-import loss_rule as lr
-import patch_tools as pt
+from piedemonte_forest import loss_rule as lr
+from piedemonte_forest import patch_tools as pt
 
 LOSS = Path("data.nosync/processed/loss")
 OUT = Path("results/initial-checks/patch_sizes.csv")

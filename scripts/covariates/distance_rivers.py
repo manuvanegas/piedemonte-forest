@@ -5,7 +5,7 @@ rivers_sub. A patch touching or inside a river surface gets distance 0.
 Needs PostGIS loaded by load_patches.py (all years) and load_targets.py --rivers.
 Out: data.nosync/processed/covariates/rivers.parquet
 
-Usage: python scripts/loss/distance_rivers.py
+Usage: python scripts/covariates/distance_rivers.py
 """
 import time
 from pathlib import Path
@@ -13,8 +13,8 @@ from pathlib import Path
 import pandas as pd
 from sqlalchemy import text
 
-import db
-from patch_distances import TARGET_BUFFER, nearest_sql
+from piedemonte_forest import db
+from piedemonte_forest.patch_distances import TARGET_BUFFER, nearest_sql
 
 OUT = Path("data.nosync/processed/covariates/rivers.parquet")
 

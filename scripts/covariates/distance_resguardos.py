@@ -6,7 +6,7 @@ in_res = True.
 Needs PostGIS loaded by load_patches.py (all years) and load_targets.py --resguardos.
 Out: data.nosync/processed/covariates/resguardos.parquet
 
-Usage: python scripts/loss/distance_resguardos.py
+Usage: python scripts/covariates/distance_resguardos.py
 """
 import time
 from pathlib import Path
@@ -14,8 +14,8 @@ from pathlib import Path
 import pandas as pd
 from sqlalchemy import text
 
-import db
-from patch_distances import TARGET_BUFFER, nearest_sql
+from piedemonte_forest import db
+from piedemonte_forest.patch_distances import TARGET_BUFFER, nearest_sql
 
 OUT = Path("data.nosync/processed/covariates/resguardos.parquet")
 

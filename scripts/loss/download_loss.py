@@ -24,8 +24,8 @@ import pandas as pd
 import rasterio
 from dotenv import load_dotenv
 
-import loss_rule as lr
-from gee_tiles import Grid
+from piedemonte_forest import loss_rule as lr
+from piedemonte_forest.gee_tiles import Grid
 
 OUT = Path("data.nosync/processed/loss")
 LOG = OUT / "download_log.csv"

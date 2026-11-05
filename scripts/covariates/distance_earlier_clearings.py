@@ -5,7 +5,7 @@ D14). Patches from 2005-2007 count as earlier clearings only (table lookback_pat
 Needs PostGIS loaded by load_patches.py (all years) and load_patches.py --lookback.
 Out: data.nosync/processed/covariates/earlier_clearings.parquet
 
-Usage: python scripts/loss/distance_earlier_clearings.py
+Usage: python scripts/covariates/distance_earlier_clearings.py
 """
 import time
 from pathlib import Path
@@ -13,9 +13,9 @@ from pathlib import Path
 import pandas as pd
 from sqlalchemy import text
 
-import db
-import loss_rule as lr
-from patch_distances import nearest_earlier_sql
+from piedemonte_forest import db
+from piedemonte_forest import loss_rule as lr
+from piedemonte_forest.patch_distances import nearest_earlier_sql
 
 OUT = Path("data.nosync/processed/covariates/earlier_clearings.parquet")
 WINDOW = 3  # years (D14)

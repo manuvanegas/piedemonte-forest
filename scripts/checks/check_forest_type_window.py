@@ -6,7 +6,7 @@ Earth Engine: area of loss in t grouped by secondary (window), secondary (full) 
 About 1-2 EECU-h for 2023 (both histories). The result is saved to
 results/initial-checks/forest_type_window_<t>.csv and reused; --rerun recomputes it.
 
-Usage: python scripts/loss/check_forest_type_window.py [year] [--rerun]
+Usage: python scripts/checks/check_forest_type_window.py [year] [--rerun]
 """
 import os
 import sys
@@ -16,7 +16,7 @@ import ee
 import pandas as pd
 from dotenv import load_dotenv
 
-import loss_rule as lr
+from piedemonte_forest import loss_rule as lr
 
 T = int(next((a for a in sys.argv[1:] if a.isdigit()), 2023))
 OUT = Path(f"results/initial-checks/forest_type_window_{T}.csv")

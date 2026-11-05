@@ -16,8 +16,8 @@ import time
 import geopandas as gpd
 from sqlalchemy import text
 
-import db
-import loss_rule as lr
+from piedemonte_forest import db
+from piedemonte_forest import loss_rule as lr
 
 MIN_PX = 2
 
