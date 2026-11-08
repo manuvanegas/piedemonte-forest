@@ -17,19 +17,20 @@ IGAC_FILES := \
 
 RESGUARDOS := $(RAW)/ant_resguardos/resguardos.parquet
 
-# quick-look maps only
+# covariate exploration only (explore_covariate_spread.py)
 HYRIV := $(RAW)/hydrorivers/HydroRIVERS_v10_sa_shp.zip
 
-.PHONY: all raw study loss covariates input-quicklook db help
+.PHONY: all raw study loss covariates loss-figures input-maps db help
 
 all: raw study
 
 help:
 	@echo "make raw   download missing raw inputs"
 	@echo "make study study area and treatment table"
-	@echo "make loss  annual loss rasters (Earth Engine) and loss patches"
+	@echo "make loss  annual loss rasters (Earth Engine), loss patches, remaining forest"
 	@echo "make covariates patch distances (needs make db)"
-	@echo "make input-quicklook quick-look maps of the inputs (adds HydroRIVERS, ~95 MB)"
+	@echo "make loss-figures loss figures and tables"
+	@echo "make input-maps maps of the municipio groups and the landscape layers"
 	@echo "make db    start PostGIS (docker compose)"
 
 # --- setup ---
@@ -74,7 +75,7 @@ LOOKBACK_YEARS := 2005 2006 2007
 LOOKBACK_TIFS := $(LOOKBACK_YEARS:%=$(PROCESSED)/loss/loss_%.tif)
 LOOKBACK_PATCHES := $(LOOKBACK_YEARS:%=$(PROCESSED)/loss_patches/patches_%.parquet)
 
-loss: $(PATCHES) $(LOOKBACK_PATCHES)
+loss: $(PATCHES) $(LOOKBACK_PATCHES) $(PROCESSED)/remaining_forest.parquet
 
 # Earth Engine, ~5 min and ~1.8 EECU-h a year. No prerequisites: fetched only when missing, never
 # rebuilt because a script changed (delete the file to refetch)
@@ -85,14 +86,20 @@ $(PROCESSED)/loss_patches/patches_%.parquet: $(PROCESSED)/loss/loss_%.tif script
 		src/piedemonte_forest/patch_tools.py $(STUDY_FILES) $(PROCESSED)/treatment.parquet
 	$(PY) scripts/loss/vectorize_loss.py $*
 
+# Earth Engine, ~1.3 EECU-h a year (~20 in all); fetched only when missing, like the loss rasters
+$(PROCESSED)/remaining_forest.parquet:
+	$(PY) scripts/loss/remaining_forest.py
+
 # Earth Engine, ~0.25 EECU-h; fetched only when missing, like the loss rasters
 $(PROCESSED)/slope/slope.tif:
 	$(PY) scripts/covariates/download_slope.py
 
 # --- patch covariates (PostGIS; start it with make db) ---
-covariates: $(PROCESSED)/covariates/protected_areas.parquet $(PROCESSED)/covariates/roads.parquet \
+COVARIATE_FILES := $(PROCESSED)/covariates/protected_areas.parquet $(PROCESSED)/covariates/roads.parquet \
 		$(PROCESSED)/covariates/rivers.parquet $(PROCESSED)/covariates/resguardos.parquet \
 		$(PROCESSED)/covariates/earlier_clearings.parquet $(PROCESSED)/covariates/slope.parquet
+
+covariates: $(COVARIATE_FILES)
 
 # Empty stamp file: all patches are in PostGIS (~3 min). Make can't see inside the database, so
 # delete the stamp if the database volume is reset
@@ -127,15 +134,45 @@ $(PROCESSED)/covariates/resguardos.parquet: $(DB_PATCHES) $(RESGUARDOS) \
 	$(PY) scripts/covariates/load_targets.py --resguardos
 	$(PY) scripts/covariates/distance_resguardos.py
 
-# --- quick-look maps of the inputs ---
-input-quicklook: figures/inputs/sources.png figures/inputs/rivers_el_doncello.png figures/inputs/treatment.png
+# --- loss figures and tables ---
+PATCH_TABLE := $(PATCHES) $(COVARIATE_FILES) src/piedemonte_forest/patch_table.py
+LOSS_OUTPUTS := figures/loss/loss_patches.gif figures/loss/loss_by_year.png figures/loss/access_by_year.png \
+		results/loss/before_after.csv figures/loss/gfc_agreement.png
 
-figures/inputs/sources.png: scripts/setup/map_inputs.py $(STUDY_FILES) $(PROCESSED)/treatment_all.parquet \
-		$(IGAC_FILES) $(RAW_FILES) $(RESGUARDOS) $(HYRIV)
+loss-figures: $(LOSS_OUTPUTS)
+
+# ~40 s
+figures/loss/loss_patches.gif: scripts/figures/plot_loss_patches_gif.py src/piedemonte_forest/plot_style.py \
+		$(PATCH_TABLE) $(STUDY_FILES) $(PROCESSED)/treatment.parquet
+	$(PY) scripts/figures/plot_loss_patches_gif.py
+
+figures/loss/loss_by_year.png: scripts/figures/plot_loss_by_year.py src/piedemonte_forest/plot_style.py \
+		$(PATCH_TABLE) $(PROCESSED)/remaining_forest.parquet $(PROCESSED)/treatment.parquet
+	$(PY) scripts/figures/plot_loss_by_year.py
+
+figures/loss/access_by_year.png: scripts/figures/plot_access_by_year.py src/piedemonte_forest/plot_style.py $(PATCH_TABLE)
+	$(PY) scripts/figures/plot_access_by_year.py
+
+figures/loss/gfc_agreement.png: scripts/figures/plot_gfc_agreement.py src/piedemonte_forest/plot_style.py \
+		results/loss/gfc_agreement.csv $(PROCESSED)/treatment.parquet
+	$(PY) scripts/figures/plot_gfc_agreement.py
+
+# Earth Engine, ~3.8 EECU-h a year (~42 in all); fetched only when missing, like the loss rasters
+results/loss/gfc_agreement.csv:
+	$(PY) scripts/checks/check_gfc_agreement.py
+
+results/loss/before_after.csv: scripts/tables/table_before_after.py src/piedemonte_forest/summaries.py $(PATCH_TABLE)
+	$(PY) scripts/tables/table_before_after.py
+
+# --- maps of the inputs ---
+input-maps: figures/inputs/sources.png figures/inputs/treatment.png
+
+figures/inputs/sources.png: scripts/setup/map_inputs.py src/piedemonte_forest/plot_style.py $(STUDY_FILES) \
+		$(PROCESSED)/treatment.parquet $(IGAC_FILES) $(RAW_FILES) $(RESGUARDOS) $(PROCESSED)/slope/slope.tif
 	$(PY) scripts/setup/map_inputs.py
 
 # written by the same run as sources.png
-figures/inputs/rivers_el_doncello.png figures/inputs/treatment.png: figures/inputs/sources.png ;
+figures/inputs/treatment.png: figures/inputs/sources.png ;
 
 db:
 	docker compose up -d
