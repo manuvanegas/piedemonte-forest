@@ -1,6 +1,6 @@
 """
 Download raw inputs into data.nosync/raw/. Skips files that already exist.
---optional also fetches inputs used only by the quick-look maps.
+--optional also fetches inputs used only by the covariate exploration (HydroRIVERS).
 
 RUNAP's "latest.zip" is not versioned: the copy used here was accessed 2026-06-28.
 """

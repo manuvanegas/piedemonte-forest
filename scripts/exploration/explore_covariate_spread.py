@@ -9,7 +9,7 @@ Points: 48,000 random points in forest (classes 3 and 6, D11) in 2007, the year 
 year, drawn in the study area; the forest flag comes from Earth Engine, coordinates are drawn locally.
 Distances are computed with geopandas against the same 200 km target sets as the loaders (A8).
 
-Needs HydroRIVERS (make input-quicklook). Points are saved to
+Needs HydroRIVERS (python scripts/setup/download_raw.py --optional). Points are saved to
 data.nosync/processed/exploration/background_points.parquet, the table to
 results/exploration/covariate_spread.csv; both are reused. --rerun recomputes the table from the
 saved points, --redraw also draws new points (Earth Engine).
@@ -69,7 +69,7 @@ def background_points(area, n):
 def targets(ring):
     """Target layers within the 200 km ring (EPSG:9377), as in the loaders, plus the comparison layers."""
     if not HYRIV.exists():
-        sys.exit(f"missing {HYRIV}: run make input-quicklook")
+        sys.exit(f"missing {HYRIV}: run python scripts/setup/download_raw.py --optional")
     bbox = tuple(gpd.GeoSeries([ring], crs=CRS).to_crs(4326).total_bounds)
     read = lambda path, **kw: gpd.read_file(path, bbox=bbox, **kw).to_crs(CRS)
     roads = read(f"zip://{RAW}/grip4/GRIP4_Region2_vector_shp.zip!GRIP4_region2.shp", columns=["GP_RTP"])
