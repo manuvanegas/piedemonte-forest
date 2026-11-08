@@ -82,7 +82,7 @@ def targets(ring):
     # the three-year window before the first loss year (D14); patches are inside the study area
     earlier = pd.concat([gpd.read_parquet(PATCHES / f"patches_{y}.parquet", columns=["n_px", "geometry"])
                          for y in range(FOREST_YEAR - 2, FOREST_YEAR + 1)])
-    earlier = earlier[earlier.n_px >= 2]  # D13
+    earlier = earlier[earlier.n_px >= lr.MIN_PX]  # D13
     layers = {
         "road (GRIP4)": roads,
         "protected area (RUNAP)": runap,

@@ -18,6 +18,7 @@ from shapely.geometry import mapping
 ASSET = "projects/mapbiomas-colombia/assets/LULC/COLECCION3/INTEGRACION/COLOMBIA-1"
 FIRST_YEAR, LAST_YEAR = 2008, 2023  # last year needs t+1 = 2024
 HISTORY_FIRST = 2005  # 2005-2007: earlier-clearing targets only, not outcomes (D14)
+MIN_PX = 2  # smallest patch analysed (D13)
 
 FOREST = [3, 6]  # forest, flooded forest (D11)
 ANTHRO = [9, 21, 24, 25, 30, 31, 35, 74, 75]  # D10
@@ -43,7 +44,7 @@ LOOKBACK = FIRST_YEAR - FIRST_MAP  # 23 years: same window for every loss year (
 
 
 def forest_type(year, lookback=None):
-    """Bands `secondary` (0/1) and `sec_age` (years since the last clearing, masked if primary),
+    """Bands `secondary` (0/1) and `sec_age` (years since the last clearing, masked if old-growth),
     as of t-1. A past clearing = two consecutive anthropic years, ending before t-2.
     Default: full history since 1985. lookback=LOOKBACK uses a fixed window instead (D12)."""
     start = FIRST_MAP if lookback is None else year - lookback
@@ -64,10 +65,17 @@ def study_area(path="data.nosync/processed/study_area.parquet"):
 
 
 def get_info(obj):
-    """getInfo() plus its cost in EECU-seconds (sum of the Earth Engine profile)."""
+    """getInfo() plus its cost in EECU-seconds (sum of the Earth Engine profile; NaN if the profile is lost)."""
     buf = io.StringIO()
-    with ee.profilePrinting(destination=buf):
-        value = obj.getInfo()
+    value = None
+    try:
+        with ee.profilePrinting(destination=buf):
+            value = obj.getInfo()
+    except ee.EEException as e:
+        if value is None or "Profile" not in str(e):
+            raise
+        print(f"cost not recorded: {e}", file=sys.stderr)  # result computed, profile fetch failed
+        return value, float("nan")
     rows = [line.split() for line in buf.getvalue().splitlines()[1:]]
     return value, sum(float(r[0]) for r in rows if r and r[0] != "-")
 

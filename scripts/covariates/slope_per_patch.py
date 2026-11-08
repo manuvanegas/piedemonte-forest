@@ -23,7 +23,6 @@ LOSS = Path("data.nosync/processed/loss")
 PATCHES = Path("data.nosync/processed/loss_patches")
 SLOPE = Path("data.nosync/processed/slope/slope.tif")
 OUT = Path("data.nosync/processed/covariates/slope.parquet")
-MIN_PX = 2
 
 t0 = time.time()
 with rasterio.open(SLOPE) as src:
@@ -41,11 +40,11 @@ for year in range(lr.FIRST_YEAR, lr.LAST_YEAR + 1):
     del labels, loss
     d = pd.DataFrame({"loss_year": year, "patch_id": np.arange(1, len(n_px)), "n_px": n_px[1:],
                       "slope_mean_deg": mean})
-    d = d[d.n_px >= MIN_PX]
+    d = d[d.n_px >= lr.MIN_PX]
 
     # same labels as the stored patches
     ref = pd.read_parquet(PATCHES / f"patches_{year}.parquet", columns=["patch_id", "n_px"])
-    ref = ref[ref.n_px >= MIN_PX]
+    ref = ref[ref.n_px >= lr.MIN_PX]
     check = d.merge(ref, on="patch_id", how="outer", suffixes=("", "_ref"), indicator=True)
     assert (check._merge == "both").all() and (check.n_px == check.n_px_ref).all(), f"{year}: labels differ"
 

@@ -19,8 +19,6 @@ from sqlalchemy import text
 from piedemonte_forest import db
 from piedemonte_forest import loss_rule as lr
 
-MIN_PX = 2
-
 engine = db.engine()
 lookback = "--lookback" in sys.argv
 table = "lookback_patches" if lookback else "patches"
@@ -34,7 +32,7 @@ with engine.begin() as con:
 for year in years:
     t0 = time.time()
     g = gpd.read_parquet(f"data.nosync/processed/loss_patches/patches_{year}.parquet")
-    g = g[g.n_px >= MIN_PX]
+    g = g[g.n_px >= lr.MIN_PX]
     if lookback:  # targets only: attributes not needed (a patch can lack a municipio, giving a NaN treated)
         g = g[["loss_year", "patch_id", "n_px", "geometry"]]
     g.to_postgis(table, engine, if_exists="append", index=False, chunksize=50_000)
