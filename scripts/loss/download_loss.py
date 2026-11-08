@@ -1,7 +1,7 @@
 """
 Annual loss rasters from Earth Engine, downloaded directly in tiles (no Drive, no Cloud Storage).
 One uint16 band per year on the native MapBiomas grid: code = to_class * 100 + sec_age,
-0 = no loss, sec_age 0 = primary (secondary is always >= 2). Decode: code // 100, code % 100.
+0 = no loss, sec_age 0 = old-growth (secondary is always >= 2). Decode: code // 100, code % 100.
 Pixels outside the study area are set to 0.
 
 Out: data.nosync/processed/loss/loss_<year>.tif (COG). Tiles are cached while a year runs, so an

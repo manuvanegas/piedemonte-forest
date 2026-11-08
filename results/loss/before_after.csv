@@ -1,0 +1,22 @@
+metric,group,pre,post,post - pre
+road_km,treated,1.3031,1.5586,0.2555
+road_km,control,1.0085,1.3308,0.3222
+road_km,treated - control,0.2945,0.2278,-0.0667
+river_km,treated,7.5345,8.3623,0.8278
+river_km,control,3.4882,3.7747,0.2865
+river_km,treated - control,4.0463,4.5877,0.5413
+earlier_touch,treated,0.4169,0.4274,0.0105
+earlier_touch,control,0.35,0.3479,-0.0021
+earlier_touch,treated - control,0.0669,0.0795,0.0127
+slope_deg,treated,4.7,4.3571,-0.3429
+slope_deg,control,4.8778,4.8,-0.0778
+slope_deg,treated - control,-0.1778,-0.4429,-0.2651
+old_growth_share,treated,0.6469,0.738,0.0912
+old_growth_share,control,0.5249,0.5615,0.0366
+old_growth_share,treated - control,0.122,0.1765,0.0546
+pa_share,treated,0.0635,0.0937,0.0302
+pa_share,control,0.0453,0.0657,0.0204
+pa_share,treated - control,0.0182,0.028,0.0098
+res_share,treated,0.0443,0.053,0.0087
+res_share,control,0.1106,0.142,0.0314
+res_share,treated - control,-0.0663,-0.089,-0.0227

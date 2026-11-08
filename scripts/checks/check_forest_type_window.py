@@ -43,7 +43,7 @@ for (w, f), g in d.groupby(["sec_window", "sec_full"]):
     print(f"window {'sec' if w else 'pri'}, full {'sec' if f else 'pri'}: {g.ha.sum():,.0f} ha "
           f"({100 * g.ha.sum() / tot:.1f}%)")
 diff = d[(d.sec_window == 0) & (d.sec_full == 1)]
-print(f"primary under the window, secondary under full history: ages {diff.age_full.min()}-{diff.age_full.max()}")
+print(f"old-growth under the window, secondary under full history: ages {diff.age_full.min()}-{diff.age_full.max()}")
 sec = d[d.sec_full == 1]
 print("secondary (full) by age (ha):",
       sec.groupby(pd.cut(sec.age_full, [1, 4, 9, 14, 19, 23, 40])).ha.sum().round(0).to_dict())
